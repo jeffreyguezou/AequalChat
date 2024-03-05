@@ -4,6 +4,7 @@ import HeaderLogo from "../elements/headerLogo";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import useTheme from "../hooks/useTheme";
+import OtpModal from "./otpModal";
 
 const Register = () => {
   const [enteredName, setEnteredName] = useState("");
@@ -12,6 +13,7 @@ const Register = () => {
   const [reEnteredPassword, setReEnteredPassword] = useState("");
   const [isRPasswordDirty, seIsRPasswordDirty] = useState(false);
   const [showCPError, setShowCPError] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
 
   const nameChangeHandler = (event: React.FormEvent<HTMLInputElement>) => {
     setEnteredName(event.currentTarget.value);
@@ -29,21 +31,35 @@ const Register = () => {
   };
 
   let isDark = useTheme();
-  const registerHandler = async () => {
+  let generatedOTP: string;
+
+  const otpGenHandler = async () => {
     const { data } = await axios.post("/auth/generateotp", {
+      email: enteredEmail,
+    });
+    if (data) {
+      console.log(data);
+      generatedOTP = data.otp;
+      setShowOtpModal(true);
+    }
+  };
+
+  const registerHandler = async (otp: string) => {
+    console.log(otp, generatedOTP);
+    if (generatedOTP === otp) {
+      console.log("otps match");
+    }
+
+    /*  const { data } = await axios.post("/auth/register", {
       username: enteredName,
       email: enteredEmail,
       password: enteredPassword,
       preferences: isDark ? "dark" : "light",
-    });
-
-    console.log(data);
+    }); */
   };
 
   useEffect(() => {
-    console.log("init load");
     if (isRPasswordDirty) {
-      console.log("enetered dirty");
       if (enteredPassword === reEnteredPassword) {
         setShowCPError(false);
       } else {
@@ -54,6 +70,13 @@ const Register = () => {
 
   return (
     <CenterAligner>
+      {showOtpModal && (
+        <OtpModal
+          onRegister={(otp) => {
+            registerHandler(otp);
+          }}
+        ></OtpModal>
+      )}
       <HeaderLogo />
       <div className="w-2/3">
         <div className="mx-2 my-3">
@@ -91,10 +114,10 @@ const Register = () => {
         </div>
         <div className="mx-2 my-3 text-center flex flex-col items-center">
           <button
-            onClick={registerHandler}
+            onClick={otpGenHandler}
             className="bg-slate-400 p-2 rounded-lg w-full sm:w-1/2 md:w-1/4 hover:rounded-full hover:bg-blue-400 hover:font-bold text-white text-bold"
           >
-            Register now
+            Generate OTP
           </button>
           <span>Already an user? Login Here</span>
         </div>
