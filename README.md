@@ -1,2 +1,3 @@
 # AequalChat
-POC of a chat app for a company
+
+POC of a chat app made at Aequalis
