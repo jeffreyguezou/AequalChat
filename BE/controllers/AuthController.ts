@@ -56,23 +56,7 @@ exports.user_registration_post = asyncHandler(async (req, res) => {
       password: hashedPassword,
       preferences,
     });
-
-    jwt.sign(
-      { userID: createdUser._id, username, email },
-      jwt_secret,
-      {},
-      (err, token) => {
-        if (err) {
-          throw err;
-        }
-        res
-          .cookie("token", token, { sameSite: "none", secure: true })
-          .status(201)
-          .json({
-            id: createdUser._id,
-          });
-      }
-    );
+    res.json(createdUser);
   } catch (err) {
     if (err) {
       throw err;
@@ -80,4 +64,28 @@ exports.user_registration_post = asyncHandler(async (req, res) => {
   }
 });
 
-exports.generate_otp = asyncHandler(async (req, res) => {});
+exports.users_get = asyncHandler(async (req, res) => {
+  const allUsers = await User.find().exec();
+  console.log(allUsers);
+  res.json(allUsers);
+});
+
+exports.login_post = asyncHandler(async (req, res) => {
+  const { username, password } = req.body;
+  const foundUser = await User.findOne({ username });
+  if (foundUser) {
+    const passOk = bcrypt.compareSync(password, foundUser.password);
+    if (passOk) {
+      jwt.sign(
+        { userId: foundUser._id, username },
+        jwt_secret,
+        {},
+        (err, token) => {
+          res.cookie("token", token, { sameSite: "none", secure: true }).json({
+            id: foundUser._id,
+          });
+        }
+      );
+    }
+  }
+});

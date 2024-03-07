@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import useTheme from "../hooks/useTheme";
 import OtpModal from "./otpModal";
+import { useNavigate } from "react-router";
 
 const Register = () => {
   const [enteredName, setEnteredName] = useState("");
@@ -14,6 +15,9 @@ const Register = () => {
   const [isRPasswordDirty, seIsRPasswordDirty] = useState(false);
   const [showCPError, setShowCPError] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
+  const [generatedOTP, setGeneratedOTP] = useState("");
+
+  let navigate = useNavigate();
 
   const nameChangeHandler = (event: React.FormEvent<HTMLInputElement>) => {
     setEnteredName(event.currentTarget.value);
@@ -31,7 +35,7 @@ const Register = () => {
   };
 
   let isDark = useTheme();
-  let generatedOTP: string;
+  //let generatedOTP: string;
 
   const otpGenHandler = async () => {
     const { data } = await axios.post("/auth/generateotp", {
@@ -39,23 +43,26 @@ const Register = () => {
     });
     if (data) {
       console.log(data);
-      generatedOTP = data.otp;
+      setGeneratedOTP(data.otp);
       setShowOtpModal(true);
     }
   };
 
   const registerHandler = async (otp: string) => {
-    console.log(otp, generatedOTP);
-    if (generatedOTP === otp) {
-      console.log("otps match");
+    if (generatedOTP == otp) {
+      const { data } = await axios.post("/auth/register", {
+        username: enteredName,
+        email: enteredEmail,
+        password: enteredPassword,
+        preferences: isDark ? "dark" : "light",
+      });
+      console.log(data);
+      if (data) {
+        navigate("/login");
+      }
+    } else {
+      alert("Invalid OTP");
     }
-
-    /*  const { data } = await axios.post("/auth/register", {
-      username: enteredName,
-      email: enteredEmail,
-      password: enteredPassword,
-      preferences: isDark ? "dark" : "light",
-    }); */
   };
 
   useEffect(() => {
@@ -119,7 +126,17 @@ const Register = () => {
           >
             Generate OTP
           </button>
-          <span>Already an user? Login Here</span>
+          <span>
+            Already an user?{" "}
+            <button
+              onClick={() => {
+                navigate("/login");
+              }}
+            >
+              Login
+            </button>{" "}
+            Here
+          </span>
         </div>
       </div>
     </CenterAligner>
