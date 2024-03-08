@@ -5,6 +5,10 @@ import Login from "./components/login";
 import Chats from "./components/chats";
 import { UserContextProvider } from "./context/userContext";
 import ThemeProvider from "./context/themeProvider";
+import {
+  LeftDisplayContext,
+  LeftDisplayContextProvider,
+} from "./context/LeftDisplayContext";
 
 function App() {
   axios.defaults.baseURL = "http://localhost:4040";
@@ -25,7 +29,9 @@ function App() {
     <>
       <UserContextProvider>
         <ThemeProvider>
-          <RouterProvider router={router}></RouterProvider>
+          <LeftDisplayContextProvider>
+            <RouterProvider router={router}></RouterProvider>
+          </LeftDisplayContextProvider>
         </ThemeProvider>
       </UserContextProvider>
     </>

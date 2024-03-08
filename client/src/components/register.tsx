@@ -15,7 +15,8 @@ const Register = () => {
   const [isRPasswordDirty, seIsRPasswordDirty] = useState(false);
   const [showCPError, setShowCPError] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
-  const [generatedOTP, setGeneratedOTP] = useState("");
+  const [generatedOTPID, setGeneratedOTPID] = useState("");
+  let fetchedOTP: string;
 
   let navigate = useNavigate();
 
@@ -43,21 +44,32 @@ const Register = () => {
     });
     if (data) {
       console.log(data);
-      setGeneratedOTP(data.otp);
+      alert("OTP sent to mail");
+      setGeneratedOTPID(data);
+
       setShowOtpModal(true);
     }
   };
 
+  const fetchSavedOTPHandler = async () => {
+    const { data } = await axios.get(`/auth/getOTP/${generatedOTPID}`);
+    if (data) {
+      fetchedOTP = data.otp;
+    }
+  };
+
   const registerHandler = async (otp: string) => {
-    if (generatedOTP == otp) {
+    fetchSavedOTPHandler();
+    if (fetchedOTP == otp) {
       const { data } = await axios.post("/auth/register", {
         username: enteredName,
         email: enteredEmail,
         password: enteredPassword,
         preferences: isDark ? "dark" : "light",
       });
-      console.log(data);
+
       if (data) {
+        alert("user created. Please Login and enjoy");
         navigate("/login");
       }
     } else {

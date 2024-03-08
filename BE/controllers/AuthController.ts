@@ -22,27 +22,34 @@ exports.user_otp_generate = asyncHandler(async (req, res) => {
     otp,
   });
 
-  const transporter = nodemailer.createTransport({
-    service: "Gmail",
-    auth: {
-      user: emailSender,
-      pass: emailPW,
-    },
-  });
+  if (createdOtp) {
+    res.json(createdOtp._id);
+    sendMail();
+  }
 
-  var mailOptions = {
-    from: emailSender,
-    to: email,
-    subject: "OTP for registration",
-    text: `Your OTP for user registration is ${otp}`,
-  };
-  transporter.sendMail(mailOptions, function (err, info) {
-    if (err) {
-      res.json(err);
-    } else {
-      res.json(createdOtp, "Email sent", info);
-    }
-  });
+  function sendMail() {
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: emailSender,
+        pass: emailPW,
+      },
+    });
+
+    var mailOptions = {
+      from: emailSender,
+      to: email,
+      subject: "OTP for registration",
+      text: `Your OTP for user registration is ${otp}`,
+    };
+    transporter.sendMail(mailOptions, function (err, info) {
+      if (err) {
+        res.json(err);
+      } else {
+        res.json(info);
+      }
+    });
+  }
 });
 
 exports.user_registration_post = asyncHandler(async (req, res) => {
@@ -68,6 +75,20 @@ exports.users_get = asyncHandler(async (req, res) => {
   const allUsers = await User.find().exec();
   console.log(allUsers);
   res.json(allUsers);
+});
+
+exports.latest_otp_get = asyncHandler(async (req, res) => {
+  const { otpId } = req.params;
+  console.log(req.params);
+  const foundOTP = await Otp.findOne({
+    _id: otpId,
+  });
+  if (foundOTP) {
+    console.log(foundOTP);
+    res.json(foundOTP);
+  } else {
+    res.json("Some error occured");
+  }
 });
 
 exports.login_post = asyncHandler(async (req, res) => {

@@ -11,7 +11,6 @@ exports.userDetails_verify_get = asyncHandler(async (req, res) => {
   const token = req.cookies?.token;
   if (token) {
     jwt.verify(token, jwt_secret, {}, (err, userData) => {
-      console.log(userData);
       if (err) throw err;
       res.json({
         userData,
@@ -33,11 +32,15 @@ exports.login_userDetails_post = asyncHandler(async (req, res) => {
 });
 
 exports.users_search_get = asyncHandler(async (req, res) => {
-  const { q } = req.params;
-  const regex = new RegExp(q, "i");
-  const searchedUsers = await User.find({
-    username: { $regex: regex },
-  });
+  const { searchTerm } = req.params;
+  console.log(req.params);
+  const regex = new RegExp(searchTerm, "i");
+  const searchedUsers = await User.find(
+    {
+      username: { $regex: regex },
+    },
+    "username _id"
+  );
   if (searchedUsers) {
     res.json(searchedUsers);
   }
