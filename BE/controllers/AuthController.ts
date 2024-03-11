@@ -63,6 +63,17 @@ exports.user_registration_post = asyncHandler(async (req, res) => {
       password: hashedPassword,
       preferences,
     });
+    jwt.sign(
+      { userId: createdUser._id, username },
+      jwt_secret,
+      {},
+      (err, token) => {
+        res.cookie("token", token, { sameSite: "none", secure: true }).json({
+          id: createdUser._id,
+          username,
+        });
+      }
+    );
     res.json(createdUser);
   } catch (err) {
     if (err) {
@@ -104,6 +115,7 @@ exports.login_post = asyncHandler(async (req, res) => {
         (err, token) => {
           res.cookie("token", token, { sameSite: "none", secure: true }).json({
             id: foundUser._id,
+            username,
           });
         }
       );

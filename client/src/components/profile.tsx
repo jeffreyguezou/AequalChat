@@ -1,13 +1,43 @@
-import { useState } from "react";
+import axios from "axios";
+import React, { useState } from "react";
 
 const Profile = () => {
   const [isDisabled, setIsDisabled] = useState(true);
+  const [image, setImage] = useState();
+
+  const imageSelectHandler = async (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
+    const file = event.currentTarget.files[0];
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.addEventListener("loadend", async (event) => {
+      let URL = event.target.result;
+      const res = await axios.post("/user/uploadUserProfile", { URL });
+
+      if (res) {
+        console.log(res.data);
+        if (res.data.status == "success") {
+          alert("Uploaded successfully");
+          const pp = document.querySelector("#profileImg");
+          pp.style.backgroundImage = `url("${res.data.data.imageUrl}")`;
+        }
+      }
+    });
+    if (file) {
+      setImage(file);
+    }
+  };
+
   return (
     <div className="flex-grow flex flex-col gap-4 items-center justify-center">
       <div className="">
-        <div className="border flex flex-col h-40 w-40 rounded-full">
+        <div
+          id="profileImg"
+          className="border flex flex-col h-40 w-40 rounded-full"
+        >
           <div className="flex h-full justify-end items-end flex-wrap">
-            <div className="m-2 z-10 bg-slate-500 rounded-lg">
+            <div className="m-1 p-1 z-10 bg-slate-500 rounded-lg">
               <label className="cursor-pointer">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -28,7 +58,11 @@ const Profile = () => {
                     d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z"
                   />
                 </svg>
-                <input type="file" className="hidden" />
+                <input
+                  onChange={imageSelectHandler}
+                  type="file"
+                  className="hidden"
+                />
               </label>
             </div>
           </div>

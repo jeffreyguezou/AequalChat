@@ -12,7 +12,7 @@ require("dotenv").config();
 mongoose.connect(process.env.MONGO_URL);
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
 app.use(cookieParser());
 
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
@@ -26,8 +26,6 @@ const server = app.listen(4040);
 
 const wss = new ws.WebSocketServer({ server });
 
-wss.on("connection", (connection, req) => {
-  console.log("connected");
-});
+wss.on("connection", (connection, req) => {});
 
 module.exports = app;

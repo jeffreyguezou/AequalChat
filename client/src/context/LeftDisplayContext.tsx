@@ -13,7 +13,7 @@ type LeftDC = {
   children: ReactNode;
 };
 export function LeftDisplayContextProvider({ children }: LeftDC) {
-  const [activeTab, setActiveTab] = useState("");
+  const [activeTab, setActiveTab] = useState("chats");
 
   let providerVal: LeftDisplayContextType = {
     activeTab,

@@ -5,10 +5,7 @@ import Login from "./components/login";
 import Chats from "./components/chats";
 import { UserContextProvider } from "./context/userContext";
 import ThemeProvider from "./context/themeProvider";
-import {
-  LeftDisplayContext,
-  LeftDisplayContextProvider,
-} from "./context/LeftDisplayContext";
+import { LeftDisplayContextProvider } from "./context/LeftDisplayContext";
 
 function App() {
   axios.defaults.baseURL = "http://localhost:4040";

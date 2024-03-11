@@ -1,13 +1,30 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { UserContext } from "./userContext";
 import { useContext } from "react";
+import axios from "axios";
 
 type ThemeProviderrType = {
   children: ReactNode;
 };
 
 const ThemeProvider = ({ children }: ThemeProviderrType) => {
-  const { dark } = useContext(UserContext);
+  const [dark, setDark] = useState("");
+  //const { dark } = useContext(UserContext);
+
+  const { id } = useContext(UserContext);
+
+  useEffect(() => {
+    async function fetchCurrent() {
+      if (id) {
+        const currentUser = await axios.get(`/user/getCurrentUser/${id}`);
+        if (currentUser) {
+          console.log(currentUser);
+          setDark(currentUser.data.preferences);
+        }
+      }
+    }
+    fetchCurrent();
+  }, [id]);
 
   useEffect(() => {
     if (dark === "dark") {
