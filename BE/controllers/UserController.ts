@@ -83,3 +83,37 @@ exports.uploadUserProfile = asyncHandler(async (req, res, next) => {
     });
   }
 });
+
+exports.update_UserProfile_Img = asyncHandler(async (req, res, next) => {
+  const { id, profile } = req.body;
+
+  const update = await User.findOneAndUpdate(
+    { _id: id },
+    {
+      profile: profile,
+    },
+    {
+      new: true,
+    }
+  );
+  if (update) {
+    res.json("UPDATED IMAGE");
+  }
+});
+
+exports.update_UserProfile_Bio = asyncHandler(async (req, res, next) => {
+  const { id, bio } = req.body;
+
+  const update = await User.findOneAndUpdate(
+    { _id: id },
+    {
+      bio: bio,
+    },
+    {
+      new: true,
+    }
+  );
+  if (update) {
+    res.json("UPDATED IMAGE");
+  }
+});

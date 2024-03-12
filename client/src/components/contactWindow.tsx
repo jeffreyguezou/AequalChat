@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Optionnav from "./optionNav";
 
 type ContactWindowProps = {
   onClick: (id: string, username: string) => void;

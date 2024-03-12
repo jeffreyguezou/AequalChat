@@ -13,5 +13,7 @@ router.post(
   //upload.single("image"),
   user_Controller.uploadUserProfile
 );
+router.post("/updateUserProfileImg", user_Controller.update_UserProfile_Img);
+router.post("/updateUserBio", user_Controller.update_UserProfile_Bio);
 
 module.exports = router;

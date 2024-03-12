@@ -1,9 +1,21 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { AppSliceActions } from "../store/appSlice";
 
 const Profile = () => {
   const [isDisabled, setIsDisabled] = useState(true);
-  const [image, setImage] = useState();
+
+  const [bio, setBio] = useState("");
+
+  let currentUser = useSelector((state) => state.app);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const pp = document.querySelector("#profileImg") as HTMLElement;
+    pp.style.backgroundImage = `url("${currentUser[0].profile}")`;
+    setBio(currentUser[0].bio);
+  }, [currentUser]);
 
   const imageSelectHandler = async (
     event: React.FormEvent<HTMLFormElement>
@@ -12,20 +24,39 @@ const Profile = () => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.addEventListener("loadend", async (event) => {
-      let URL = event.target.result;
+      let URL = event!.target!.result;
       const res = await axios.post("/user/uploadUserProfile", { URL });
 
       if (res) {
-        console.log(res.data);
         if (res.data.status == "success") {
           alert("Uploaded successfully");
-          const pp = document.querySelector("#profileImg");
+          const pp = document.querySelector("#profileImg") as HTMLElement;
           pp.style.backgroundImage = `url("${res.data.data.imageUrl}")`;
+          dispatch(AppSliceActions.updateProfile(res.data.data.imageUrl));
+          const imgUpdateRes = await axios.post("/user/updateUserProfileImg", {
+            id: currentUser[0]._id,
+            profile: res.data.data.imageUrl,
+          });
+          if (imgUpdateRes) {
+            alert("saved in db");
+          }
         }
       }
     });
-    if (file) {
-      setImage(file);
+  };
+
+  const bioChangeHandler = (event: React.FormEvent<HTMLInputElement>) => {
+    setBio(event.currentTarget.value);
+  };
+
+  const saveBioHandler = async () => {
+    dispatch(AppSliceActions.updateBio(bio));
+    const bioUpdateRes = await axios.post("/user/updateUserBio", {
+      id: currentUser[0]._id,
+      bio: bio,
+    });
+    if (bioUpdateRes) {
+      console.log("updated");
     }
   };
 
@@ -73,8 +104,9 @@ const Profile = () => {
         <label>Bio</label>
         <input
           className="dark:bg-slate-600 p-1"
-          value="Hey there!"
+          value={bio}
           type="text"
+          onChange={bioChangeHandler}
           disabled={isDisabled}
         ></input>
         <div
@@ -108,7 +140,8 @@ const Profile = () => {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="w-6 h-6"
+              className="w-6 h-6 text-green-500"
+              onClick={saveBioHandler}
             >
               <path
                 strokeLinecap="round"

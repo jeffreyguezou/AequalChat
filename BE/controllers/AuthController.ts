@@ -53,8 +53,16 @@ exports.user_otp_generate = asyncHandler(async (req, res) => {
 });
 
 exports.user_registration_post = asyncHandler(async (req, res) => {
-  const { username, email, password, friends, requests, preferences } =
-    req.body;
+  const {
+    username,
+    email,
+    password,
+    friends,
+    requests,
+    preferences,
+    bio,
+    profile,
+  } = req.body;
   try {
     const hashedPassword = bcrypt.hashSync(password, bcryptSalt);
     const createdUser = await User.create({
@@ -62,6 +70,10 @@ exports.user_registration_post = asyncHandler(async (req, res) => {
       email,
       password: hashedPassword,
       preferences,
+      bio,
+      profile,
+      friends,
+      requests,
     });
     jwt.sign(
       { userId: createdUser._id, username },

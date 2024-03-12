@@ -65,7 +65,12 @@ const Register = () => {
         username: enteredName,
         email: enteredEmail,
         password: enteredPassword,
+        profile:
+          "https://res.cloudinary.com/dn8vdf49h/image/upload/v1710222554/istockphoto-1223671392-612x612_eya1jk.jpg",
         preferences: isDark ? "dark" : "light",
+        bio: "Hello there, General Kenobi",
+        friends: [],
+        requests: [],
       });
 
       if (data) {
