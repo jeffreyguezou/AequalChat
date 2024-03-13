@@ -6,7 +6,8 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, unique: true },
   preferences: String,
   bio: String,
-  friends: Array,
+  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  requests: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 });
 
 module.exports = mongoose.model("User", UserSchema);

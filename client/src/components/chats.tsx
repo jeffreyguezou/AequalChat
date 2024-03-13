@@ -6,7 +6,7 @@ import ContactWindow from "./contactWindow";
 import { LeftDisplayContext } from "../context/LeftDisplayContext";
 import Optionnav from "./optionNav";
 import Profile from "./profile";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { AppSliceActions } from "../store/appSlice";
 import Friends from "./friends";
 
@@ -15,7 +15,6 @@ const Chats = () => {
   const [selectedUserId, setSelectedUserId] = useState("");
   const [selectedUserName, setSelectedUserName] = useState("");
   const [currentTab, setCurrentTab] = useState("");
-  const [requests, setRequests] = useState([]);
 
   const user = useContext(UserContext);
   let userName = user.userName;
@@ -31,9 +30,7 @@ const Chats = () => {
     setWs(ws);
     console.log("connection est");
     ws.onmessage = (event) => {
-      console.log(event);
-      const reqdata = JSON.parse(event.data);
-      setRequests((prev) => [...prev, { ...reqdata }]);
+      handleMessage(event);
     };
     ws.addEventListener("close", () => {
       setTimeout(() => {
@@ -42,14 +39,14 @@ const Chats = () => {
     });
   }
 
+  console.log(userName);
+
   useEffect(() => {
     async function getCurrentUser() {
       const currentUser = await axios.post("/user/getUserDetails", {
         userName,
       });
       if (currentUser) {
-        console.log(currentUser);
-
         user.setDark(currentUser.data.preferences);
         dispath(AppSliceActions.setUser(currentUser.data));
       }
@@ -73,11 +70,13 @@ const Chats = () => {
 
   const handleMessage = (event: { data: string }) => {
     const msgData = JSON.parse(event.data);
-    console.log(msgData);
+    if (msgData.type === "request") {
+      console.log(msgData.sender);
+      dispath(AppSliceActions.newRequest(msgData.sender));
+    }
   };
 
   const sendReqHandler = (recipient: string) => {
-    console.log(recipient);
     ws?.send(
       JSON.stringify({
         recipient,
@@ -86,6 +85,18 @@ const Chats = () => {
         text: "",
       })
     );
+
+    async function sendReqToDB() {
+      const sentReq = await axios.post("/user/updateReq", {
+        id: recipient,
+        reqBy: user.id,
+      });
+      if (sentReq) {
+        console.log(sentReq);
+      }
+    }
+
+    sendReqToDB();
   };
 
   useEffect(() => {

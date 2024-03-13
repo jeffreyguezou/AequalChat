@@ -60,8 +60,7 @@ wss.on("connection", (connection, req) => {
       type,
     });
 
-    //START ON WEDNESDAY>>> ERROR IN FILTERING
-    wss.clients
+    [...wss.clients]
       .filter((u) => u.userId === recipient)
       .forEach((c) =>
         c.send(
@@ -69,6 +68,7 @@ wss.on("connection", (connection, req) => {
             text,
             sender: connection.userId,
             recipient,
+            type,
             _id: messageDoc._id,
           })
         )

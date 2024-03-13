@@ -1,5 +1,3 @@
-import { response } from "express";
-
 const User = require("../models/User");
 const mongoose = require("mongoose");
 require("dotenv").config();
@@ -41,6 +39,19 @@ exports.user_detail_get = asyncHandler(async (req, res) => {
   });
   if (currentUser) {
     res.json(currentUser);
+  }
+});
+
+exports.user_detail_partial_get = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const fetchedUser = await User.findOne(
+    {
+      _id: userId,
+    },
+    "username bio profile"
+  );
+  if (fetchedUser) {
+    res.json(fetchedUser);
   }
 });
 
@@ -114,6 +125,71 @@ exports.update_UserProfile_Bio = asyncHandler(async (req, res, next) => {
     }
   );
   if (update) {
-    res.json("UPDATED IMAGE");
+    res.json("UPDATED BIO");
   }
 });
+
+exports.new_request_Recieved_post = asyncHandler(async (req, res, next) => {
+  const { id, reqBy } = req.body;
+
+  console.log("en tered lo");
+
+  let userReq = await getExistingRequests(id);
+  userReq.push(reqBy);
+  const update = await User.findOneAndUpdate(
+    { _id: id },
+    {
+      requests: userReq,
+    },
+    { new: true }
+  );
+  if (update) {
+    res.json("UPDATED REQUESTS IN DB");
+  }
+});
+
+async function getExistingRequests(id) {
+  const userDetails = await User.findOne({ _id: id });
+  return userDetails.requests;
+}
+
+exports.accept_request_post = asyncHandler(async (req, res) => {
+  const { id, acceptedReqID } = req.body;
+
+  const existingFriends = await getExistingFriends(id);
+
+  let userReq = await getExistingRequests(id);
+  existingFriends.friends.push(acceptedReqID);
+
+  let filteredRequests: string[] = [];
+
+  userReq.forEach((req) => {
+    if (!req._id.equals(acceptedReqID)) {
+      filteredRequests.push(req._id as string);
+    }
+  });
+  const update = await User.findOneAndUpdate(
+    { _id: id },
+    {
+      friends: existingFriends.friends,
+    },
+    { new: true }
+  );
+  if (update) {
+    res.json("UPDATED FRIENDS IN DB");
+    const deleteAcceptedReq = await User.findOneAndUpdate(
+      {
+        _id: id,
+      },
+      {
+        requests: filteredRequests,
+      },
+      { new: true }
+    );
+  }
+});
+
+async function getExistingFriends(id) {
+  const userFriends = await User.findOne({ _id: id }, "friends");
+  return userFriends;
+}

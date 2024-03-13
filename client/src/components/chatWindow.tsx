@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 type ChatWindowProps = {
@@ -14,13 +14,17 @@ const ChatWindow = ({
 }: ChatWindowProps) => {
   const [isFriend, setIsFriend] = useState(false);
 
-  const getIsFriend = () => {
-    const user = useSelector((state) => state.user);
-    let userFriends = user[0].friends;
-    if (userFriends.includes(selecteduserId)) {
-      setIsFriend(true);
+  const userArray = useSelector((state) => state.app);
+  useEffect(() => {
+    if (userArray[0]) {
+      let userFriends = userArray[0].friends;
+      if (userFriends.includes(selecteduserId)) {
+        setIsFriend(true);
+      } else {
+        setIsFriend(false);
+      }
     }
-  };
+  }, [userArray, selecteduserId]);
 
   return (
     <>

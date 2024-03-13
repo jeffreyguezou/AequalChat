@@ -6,8 +6,6 @@ import Chats from "./components/chats";
 import { UserContextProvider } from "./context/userContext";
 import ThemeProvider from "./context/themeProvider";
 import { LeftDisplayContextProvider } from "./context/LeftDisplayContext";
-import { Provider } from "react-redux";
-import store from "./store/store";
 
 function App() {
   axios.defaults.baseURL = "http://localhost:4040";
@@ -25,15 +23,13 @@ function App() {
     },
   ]);
   return (
-    <Provider store={store}>
-      <UserContextProvider>
-        <ThemeProvider>
-          <LeftDisplayContextProvider>
-            <RouterProvider router={router}></RouterProvider>
-          </LeftDisplayContextProvider>
-        </ThemeProvider>
-      </UserContextProvider>
-    </Provider>
+    <UserContextProvider>
+      <ThemeProvider>
+        <LeftDisplayContextProvider>
+          <RouterProvider router={router}></RouterProvider>
+        </LeftDisplayContextProvider>
+      </ThemeProvider>
+    </UserContextProvider>
   );
 }
 

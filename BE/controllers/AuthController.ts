@@ -96,7 +96,6 @@ exports.user_registration_post = asyncHandler(async (req, res) => {
 
 exports.users_get = asyncHandler(async (req, res) => {
   const allUsers = await User.find().exec();
-  console.log(allUsers);
   res.json(allUsers);
 });
 
