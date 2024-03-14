@@ -6,6 +6,7 @@ import Chats from "./components/chats";
 import { UserContextProvider } from "./context/userContext";
 import ThemeProvider from "./context/themeProvider";
 import { LeftDisplayContextProvider } from "./context/LeftDisplayContext";
+import { WebSocketContextProvider } from "./context/WebSocketContext";
 
 function App() {
   axios.defaults.baseURL = "http://localhost:4040";
@@ -24,11 +25,13 @@ function App() {
   ]);
   return (
     <UserContextProvider>
-      <ThemeProvider>
-        <LeftDisplayContextProvider>
-          <RouterProvider router={router}></RouterProvider>
-        </LeftDisplayContextProvider>
-      </ThemeProvider>
+      <WebSocketContextProvider>
+        <ThemeProvider>
+          <LeftDisplayContextProvider>
+            <RouterProvider router={router}></RouterProvider>
+          </LeftDisplayContextProvider>
+        </ThemeProvider>
+      </WebSocketContextProvider>
     </UserContextProvider>
   );
 }

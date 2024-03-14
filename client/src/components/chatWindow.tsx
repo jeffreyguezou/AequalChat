@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 type ChatWindowProps = {
   selecteduserId: string;
   selectedUserName: string;
-  onSendReq: (recipient) => void;
+  onSendReq: (recipient: string) => void;
 };
 
 const ChatWindow = ({

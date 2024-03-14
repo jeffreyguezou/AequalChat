@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import UserDisplayDiv from "../elements/userDisplayDiv";
 
 type ContactWindowProps = {
   onClick: (id: string, username: string) => void;
@@ -18,6 +19,9 @@ const ContactWindow = ({ onClick }: ContactWindowProps) => {
     event: React.FormEvent<HTMLInputElement>
   ) => {
     setSearchTerm(event.currentTarget.value);
+  };
+  const onUserClick = (id: string, username: string) => {
+    onClick(id, username);
   };
 
   useEffect(() => {
@@ -74,15 +78,16 @@ const ContactWindow = ({ onClick }: ContactWindowProps) => {
             <div className="bg-slate-700 m-2">
               {searchResults.map((result: userObj) => {
                 return (
-                  <div
+                  <UserDisplayDiv
                     onClick={() => {
-                      onClick(result._id, result.username);
+                      onUserClick(result._id, result.username);
                     }}
                     className="border border-gray-500 cursor-pointer p-2"
                     key={result._id}
+                    userID={result._id}
                   >
                     {result.username}
-                  </div>
+                  </UserDisplayDiv>
                 );
               })}
             </div>

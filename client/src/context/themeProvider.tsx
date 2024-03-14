@@ -18,7 +18,6 @@ const ThemeProvider = ({ children }: ThemeProviderrType) => {
       if (id) {
         const currentUser = await axios.get(`/user/getCurrentUser/${id}`);
         if (currentUser) {
-          console.log(currentUser);
           setDark(currentUser.data.preferences);
         }
       }

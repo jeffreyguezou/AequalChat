@@ -1,15 +1,22 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { AppSliceActions } from "../store/appSlice";
+import { WebSocketContext } from "../context/WebSocketContext";
+import { UserContext } from "../context/userContext";
+import { useNavigate } from "react-router";
 
 const Profile = () => {
   const [isDisabled, setIsDisabled] = useState(true);
 
   const [bio, setBio] = useState("");
 
+  const WS = useContext(WebSocketContext);
+  const { setUserName, setId } = useContext(UserContext);
+
   let currentUser = useSelector((state) => state.app);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const pp = document.querySelector("#profileImg") as HTMLElement;
@@ -57,6 +64,16 @@ const Profile = () => {
     });
     if (bioUpdateRes) {
       console.log("updated");
+    }
+  };
+
+  const logoutHandler = async () => {
+    WS.setWs(null);
+    setUserName("");
+    setId("");
+    const logoutMsg = await axios.post("/auth/logout");
+    if (logoutMsg.data === "ok") {
+      navigate("/");
     }
   };
 
@@ -152,6 +169,13 @@ const Profile = () => {
           )}
         </div>
       </div>
+
+      <button
+        onClick={logoutHandler}
+        className="border p-1 rounded-lg hover:bg-slate-200 hover:text-gray-900"
+      >
+        Log out
+      </button>
     </div>
   );
 };

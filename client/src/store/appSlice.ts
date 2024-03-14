@@ -31,6 +31,11 @@ const AppSlice = createSlice({
         state[0].requests = filteredRequests;
       }
     },
+    updateUser: (state, action) => {
+      if (state[0]) {
+        state[0] = action.payload;
+      }
+    },
   },
 });
 export default AppSlice.reducer;

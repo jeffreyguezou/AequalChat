@@ -156,10 +156,12 @@ async function getExistingRequests(id) {
 exports.accept_request_post = asyncHandler(async (req, res) => {
   const { id, acceptedReqID } = req.body;
 
-  const existingFriends = await getExistingFriends(id);
+  //update friends for reciever
+
+  const recieverUpdate = await updateFriendsOnReqAccept(id, acceptedReqID);
+  const senderUpdate = await updateFriendsOnReqAccept(acceptedReqID, id); //for sender
 
   let userReq = await getExistingRequests(id);
-  existingFriends.friends.push(acceptedReqID);
 
   let filteredRequests: string[] = [];
 
@@ -168,14 +170,8 @@ exports.accept_request_post = asyncHandler(async (req, res) => {
       filteredRequests.push(req._id as string);
     }
   });
-  const update = await User.findOneAndUpdate(
-    { _id: id },
-    {
-      friends: existingFriends.friends,
-    },
-    { new: true }
-  );
-  if (update) {
+
+  if (recieverUpdate && senderUpdate) {
     res.json("UPDATED FRIENDS IN DB");
     const deleteAcceptedReq = await User.findOneAndUpdate(
       {
@@ -188,6 +184,19 @@ exports.accept_request_post = asyncHandler(async (req, res) => {
     );
   }
 });
+
+async function updateFriendsOnReqAccept(id, acceptedReqID) {
+  let userFriends = await getExistingFriends(id);
+  userFriends.friends.push(acceptedReqID);
+  const update = await User.findOneAndUpdate(
+    { _id: id },
+    {
+      friends: userFriends.friends,
+    },
+    { new: true }
+  );
+  return update;
+}
 
 async function getExistingFriends(id) {
   const userFriends = await User.findOne({ _id: id }, "friends");

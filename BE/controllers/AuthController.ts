@@ -133,3 +133,7 @@ exports.login_post = asyncHandler(async (req, res) => {
     }
   }
 });
+
+exports.logout_post = asyncHandler(async (req, res) => {
+  res.cookie("token", "", { sameSite: "none", secure: true }).json("ok");
+});
