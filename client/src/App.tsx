@@ -7,6 +7,7 @@ import { UserContextProvider } from "./context/userContext";
 import ThemeProvider from "./context/themeProvider";
 import { LeftDisplayContextProvider } from "./context/LeftDisplayContext";
 import { WebSocketContextProvider } from "./context/WebSocketContext";
+import { SelectedUserContextProvider } from "./context/SelectedUserContext";
 
 function App() {
   axios.defaults.baseURL = "http://localhost:4040";
@@ -27,9 +28,11 @@ function App() {
     <UserContextProvider>
       <WebSocketContextProvider>
         <ThemeProvider>
-          <LeftDisplayContextProvider>
-            <RouterProvider router={router}></RouterProvider>
-          </LeftDisplayContextProvider>
+          <SelectedUserContextProvider>
+            <LeftDisplayContextProvider>
+              <RouterProvider router={router}></RouterProvider>
+            </LeftDisplayContextProvider>
+          </SelectedUserContextProvider>
         </ThemeProvider>
       </WebSocketContextProvider>
     </UserContextProvider>

@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import UserDisplayDiv from "../elements/userDisplayDiv";
+import { SelectedUserContext } from "../context/SelectedUserContext";
 
 type ContactWindowProps = {
   onClick: (id: string, username: string) => void;
@@ -11,9 +12,10 @@ type userObj = {
   username: string;
 };
 
-const ContactWindow = ({ onClick }: ContactWindowProps) => {
+const ContactWindow = () => {
   const [seachTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const SelectUser = useContext(SelectedUserContext);
 
   const searchTermChangeHandler = (
     event: React.FormEvent<HTMLInputElement>
@@ -21,7 +23,8 @@ const ContactWindow = ({ onClick }: ContactWindowProps) => {
     setSearchTerm(event.currentTarget.value);
   };
   const onUserClick = (id: string, username: string) => {
-    onClick(id, username);
+    SelectUser.setSelectedUserId(id);
+    SelectUser.setSelectedUserName(username);
   };
 
   useEffect(() => {

@@ -10,11 +10,11 @@ import { useDispatch } from "react-redux";
 import { AppSliceActions } from "../store/appSlice";
 import Friends from "./friends";
 import { WebSocketContext } from "../context/WebSocketContext";
+import ChatHistory from "./ChatHistory";
 
 const Chats = () => {
-  const [selectedUserId, setSelectedUserId] = useState("");
-  const [selectedUserName, setSelectedUserName] = useState("");
   const [currentTab, setCurrentTab] = useState("");
+  const [loggedInUserFriends, setLoggedInUserFriends] = useState([]);
 
   const WS = useContext(WebSocketContext);
 
@@ -35,16 +35,13 @@ const Chats = () => {
       if (currentUser) {
         user.setDark(currentUser.data.preferences);
         dispath(AppSliceActions.setUser(currentUser.data));
+        setLoggedInUserFriends(currentUser.data.friends);
       }
     }
     getCurrentUser();
   }, [userName]);
 
-  const onUserSelect = (id: string, username: string) => {
-    setSelectedUserId(id);
-    setSelectedUserName(username);
-  };
-
+  console.log(loggedInUserFriends);
   useEffect(() => {
     setCurrentTab(activeTabSetter.activeTab);
   }, [activeTabSetter.activeTab]);
@@ -52,24 +49,18 @@ const Chats = () => {
   return (
     <div className="flex ">
       <div className="w-2/5 flex flex-col dark:bg-slate-900 dark:text-gray-100">
-        {currentTab === "search" && (
-          <ContactWindow
-            onClick={(id, username) => onUserSelect(id, username)}
-          />
-        )}
+        {currentTab === "search" && <ContactWindow />}
         {currentTab === "friends" && <Friends />}
         {currentTab === "profile" && <Profile />}
-        {currentTab === "chats" && <div>chats</div>}
+        {currentTab === "chats" && (
+          <ChatHistory friends={loggedInUserFriends} />
+        )}
         <div>
           <Optionnav />
         </div>
       </div>
       <div className="w-3/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100">
-        <ChatWindow
-          selecteduserId={selectedUserId}
-          selectedUserName={selectedUserName}
-          onSendReq={(recipient) => WS.sendReqHandler(recipient)}
-        />
+        <ChatWindow onSendReq={(recipient) => WS.sendReqHandler(recipient)} />
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { UserContext } from "../context/userContext";
 import { useDispatch } from "react-redux";
 import { AppSliceActions } from "../store/appSlice";
 import { WebSocketContext } from "../context/WebSocketContext";
+import { SelectedUserContext } from "../context/SelectedUserContext";
 
 interface UserDisaplayDivType {
   userID: string;
@@ -14,23 +15,36 @@ interface UserDisaplayDivType {
 const UserDisplayDiv = ({ userID, type, onClick }: UserDisaplayDivType) => {
   const [userName, setUserName] = useState("");
   const [userProfile, setUserProfile] = useState("");
+  const [userBio, setUserBio] = useState("");
 
   const dispatch = useDispatch();
 
   const { id } = useContext(UserContext);
 
   const WS = useContext(WebSocketContext);
+  const SelectedUser = useContext(SelectedUserContext);
+
+  console.log(userID);
 
   async function getData() {
     const { data } = await axios.get(`/user/getUserDetails/${userID}`);
     if (data) {
       setUserName(data.username);
       setUserProfile(data.profile);
+      setUserBio(data.bio);
     }
   }
   if (userID) {
     getData();
   }
+
+  const clickhandler = (id: string, username: string) => {
+    SelectedUser.setSelectedUserId(id);
+    SelectedUser.setSelectedUserName(username);
+    SelectedUser.setSelectedUserBio(userBio);
+    SelectedUser.setSelectedUserProfile(userProfile);
+    console.log(SelectedUser);
+  };
 
   const acceptRequestHandler = async () => {
     const res = await axios.post("/user/acceptReq", {
@@ -48,7 +62,7 @@ const UserDisplayDiv = ({ userID, type, onClick }: UserDisaplayDivType) => {
   return (
     <div
       onClick={() => {
-        onClick(id, userName);
+        clickhandler(userID, userName);
       }}
       className="border-b my-2 p-1 cursor-pointer flex gap-2 items-center"
     >

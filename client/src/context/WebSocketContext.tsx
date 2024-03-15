@@ -16,6 +16,7 @@ type WSContextType = {
   sendReqHandler: (recipient: string) => void;
   wsUserDetailsUpdateHandler: (recipient: string) => void;
   setWs: React.Dispatch<React.SetStateAction<WebSocket | null | undefined>>;
+  sendMsgHandler: (message: string, recipient: string) => void;
 };
 
 export function WebSocketContextProvider({ children }: WSContextPropType) {
@@ -54,6 +55,8 @@ export function WebSocketContextProvider({ children }: WSContextPropType) {
         }
       };
       userDetailsUpdatedHandler();
+    } else if (msgData.type === "message") {
+      console.log(msgData.text);
     }
   };
 
@@ -76,6 +79,17 @@ export function WebSocketContextProvider({ children }: WSContextPropType) {
       }
     }
     sendReqToDB();
+  };
+
+  const sendMsgHandler = (message: string, recipient: string) => {
+    ws?.send(
+      JSON.stringify({
+        recipient,
+        sender: user.id,
+        type: "message",
+        text: message,
+      })
+    );
   };
 
   const wsUserDetailsUpdateHandler = (recipient: string) => {
@@ -103,6 +117,7 @@ export function WebSocketContextProvider({ children }: WSContextPropType) {
     sendReqHandler,
     wsUserDetailsUpdateHandler,
     setWs,
+    sendMsgHandler,
   };
 
   return (

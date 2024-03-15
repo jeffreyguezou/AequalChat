@@ -1,54 +1,44 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useLocation, useParams } from "react-router";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { SelectedUserContext } from "../context/SelectedUserContext";
+import { useContext } from "react";
 import { WebSocketContext } from "../context/WebSocketContext";
 
-type ChatWindowProps = {
-  onSendReq: (recipient: string) => void;
-};
-
-const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
-  const [isFriend, setIsFriend] = useState(false);
-  const [msgText, setMsgText] = useState("");
-
-  const selectedUser = useContext(SelectedUserContext);
+const UserChatWindow = () => {
+  const params = useParams();
+  console.log(params);
+  const location = useLocation();
   const WS = useContext(WebSocketContext);
+  let selecteduserId;
+  let selectedUserName;
+
+  selecteduserId = location.state.userID;
+  selectedUserName = location.state.userName;
+
+  const [isFriend, setIsFriend] = useState(false);
+
   const userArray = useSelector((state) => state.app);
 
+  console.log(userArray);
   useEffect(() => {
     if (userArray[0]) {
       let userFriends = userArray[0].friends;
-      if (userFriends.includes(selectedUser.selectedUserId)) {
+      if (userFriends.includes(selecteduserId)) {
         setIsFriend(true);
       } else {
         setIsFriend(false);
       }
     }
-  }, [userArray, selectedUser]);
-
-  const msgTextChangeHandler = (event: React.FormEvent<HTMLInputElement>) => {
-    setMsgText(event.currentTarget.value);
-  };
-
-  const sendMsgHandler = () => {
-    WS.sendMsgHandler(msgText, selectedUser.selectedUserId);
-  };
-
+  }, [userArray, selecteduserId]);
   return (
     <>
-      {selectedUser.selectedUserId && (
-        <>
+      {selecteduserId && (
+        <div className="flex-grow flex flex-col">
           <div className="flex-grow flex flex-col">
-            <div className="p-2 flex gap-2 bg-slate-700 text-gray-200">
-              <img
-                className="h-6 w-6 rounded-full"
-                src={selectedUser.selectedUserProfile}
-              ></img>
-              <h1>{selectedUser.selectedUserName}</h1>
-              <div className="text-right flex-grow italic font-extralight">
-                <h3>{selectedUser.selectedUserBio}</h3>
-              </div>
+            <div className="p-2 bg-slate-700 text-gray-200">
+              <h1>{selectedUserName}</h1>
             </div>
+
             {!isFriend && (
               <div className="flex flex-grow items-center justify-center">
                 <svg
@@ -57,7 +47,11 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  onClick={() => onSendReq(selectedUser.selectedUserId)}
+                  onClick={() => {
+                    console.log("clicked");
+                    console.log(selecteduserId);
+                    WS.sendReqHandler(selecteduserId);
+                  }}
                   className="h-6 w-6 border-slate-300 border cursor-pointer"
                 >
                   <path
@@ -69,19 +63,15 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
               </div>
             )}
           </div>
+
           {isFriend && (
             <div className="flex m-4 gap-4 items-center">
               <input
-                className="p-2 flex-grow dark:text-slate-900"
+                className="p-2 flex-grow"
                 type="text"
                 placeholder="type your message"
-                onChange={msgTextChangeHandler}
-                value={msgText}
               ></input>
-              <button
-                onClick={sendMsgHandler}
-                className="text-center border border-gray-50 p-1 hover:bg-slate-400"
-              >
+              <button className="text-center border border-gray-50 p-1 hover:bg-slate-400">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -99,12 +89,10 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
               </button>
             </div>
           )}
-        </>
+        </div>
       )}
-      {!selectedUser.selectedUserId && (
-        <div>Select a user to start chaetting</div>
-      )}
+      {!selecteduserId && <div>Select a user to start chaetting</div>}
     </>
   );
 };
-export default ChatWindow;
+export default UserChatWindow;
