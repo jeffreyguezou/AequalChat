@@ -2,10 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import UserDisplayDiv from "../elements/userDisplayDiv";
 import { SelectedUserContext } from "../context/SelectedUserContext";
-
-type ContactWindowProps = {
-  onClick: (id: string, username: string) => void;
-};
+import { useSelector } from "react-redux";
 
 type userObj = {
   _id: string;

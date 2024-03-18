@@ -1,15 +1,18 @@
 import UserDisplayDiv from "../elements/userDisplayDiv";
+import { useSelector } from "react-redux";
 
 type ChatHistoryprop = {
-  friends: [];
+  friends;
 };
 
 const ChatHistory = ({ friends }: ChatHistoryprop) => {
-  console.log(friends);
+  const msgs = useSelector((state) => state.messages);
+
   if (friends) {
     return (
       <div className="flex-grow">
         {friends.map((friend: string) => {
+          let msgRecieved = msgs[friend];
           return (
             <UserDisplayDiv
               userID={friend}
@@ -17,6 +20,7 @@ const ChatHistory = ({ friends }: ChatHistoryprop) => {
               onClick={() => {
                 console.log("clicked");
               }}
+              msgRecieved={msgRecieved}
             />
           );
         })}

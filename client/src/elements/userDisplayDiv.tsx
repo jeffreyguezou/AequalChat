@@ -1,21 +1,29 @@
 import axios from "axios";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../context/userContext";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { AppSliceActions } from "../store/appSlice";
 import { WebSocketContext } from "../context/WebSocketContext";
 import { SelectedUserContext } from "../context/SelectedUserContext";
+import { messageSlicaActions } from "../store/messageSlice";
 
 interface UserDisaplayDivType {
   userID: string;
   type: string;
   onClick: (id: string, username: string) => void;
+  msgRecieved: [];
 }
 
-const UserDisplayDiv = ({ userID, type, onClick }: UserDisaplayDivType) => {
+const UserDisplayDiv = ({
+  userID,
+  type,
+  onClick,
+  msgRecieved,
+}: UserDisaplayDivType) => {
   const [userName, setUserName] = useState("");
   const [userProfile, setUserProfile] = useState("");
   const [userBio, setUserBio] = useState("");
+  const [unRead, setUnRead] = useState([]);
 
   const dispatch = useDispatch();
 
@@ -24,7 +32,13 @@ const UserDisplayDiv = ({ userID, type, onClick }: UserDisaplayDivType) => {
   const WS = useContext(WebSocketContext);
   const SelectedUser = useContext(SelectedUserContext);
 
-  console.log(userID);
+  useEffect(() => {
+    let unread;
+    if (msgRecieved) {
+      unread = msgRecieved.unread;
+    }
+    setUnRead(unread);
+  }, [msgRecieved]);
 
   async function getData() {
     const { data } = await axios.get(`/user/getUserDetails/${userID}`);
@@ -43,7 +57,6 @@ const UserDisplayDiv = ({ userID, type, onClick }: UserDisaplayDivType) => {
     SelectedUser.setSelectedUserName(username);
     SelectedUser.setSelectedUserBio(userBio);
     SelectedUser.setSelectedUserProfile(userProfile);
-    console.log(SelectedUser);
   };
 
   const acceptRequestHandler = async () => {
@@ -61,8 +74,11 @@ const UserDisplayDiv = ({ userID, type, onClick }: UserDisaplayDivType) => {
 
   return (
     <div
-      onClick={() => {
+      onClick={async () => {
         clickhandler(userID, userName);
+        if (type === "friend" && msgRecieved) {
+          dispatch(messageSlicaActions.markRead({ sender: userID }));
+        }
       }}
       className="border-b my-2 p-1 cursor-pointer flex gap-2 items-center"
     >
@@ -76,6 +92,11 @@ const UserDisplayDiv = ({ userID, type, onClick }: UserDisaplayDivType) => {
           >
             Accept
           </button>
+        )}
+        {unRead && (
+          <div className="w-6 h-6 rounded-full bg-green-500">
+            <div className="text-center">{unRead.length}</div>
+          </div>
         )}
       </div>
     </div>

@@ -6,7 +6,7 @@ import ContactWindow from "./contactWindow";
 import { LeftDisplayContext } from "../context/LeftDisplayContext";
 import Optionnav from "./optionNav";
 import Profile from "./profile";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { AppSliceActions } from "../store/appSlice";
 import Friends from "./friends";
 import { WebSocketContext } from "../context/WebSocketContext";
@@ -22,6 +22,10 @@ const Chats = () => {
   let userName = user.userName;
   const activeTabSetter = useContext(LeftDisplayContext);
   const dispath = useDispatch();
+
+  let userArr = useSelector((state) => state.app);
+
+  let userDeets = userArr[0];
 
   useEffect(() => {
     WS.connectToWs();
@@ -40,6 +44,12 @@ const Chats = () => {
     }
     getCurrentUser();
   }, [userName]);
+
+  useEffect(() => {
+    if (userDeets) {
+      setLoggedInUserFriends(userDeets.friends);
+    }
+  }, [userDeets]);
 
   console.log(loggedInUserFriends);
   useEffect(() => {

@@ -3,6 +3,7 @@ let mongoose = require("mongoose");
 const cors = require("cors");
 var authRouter = require("./routes/auth.ts");
 var userRouter = require("./routes/user.ts");
+var messagesRouter = require("./routes/messages.ts");
 var path = require("path");
 const cookieParser = require("cookie-parser");
 const ws = require("ws");
@@ -26,6 +27,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
+app.use("/messages", messagesRouter);
 
 const server = app.listen(4040);
 

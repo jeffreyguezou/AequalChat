@@ -4,6 +4,7 @@ import { AppSliceActions } from "../store/appSlice";
 import { useContext } from "react";
 import { UserContext } from "./userContext";
 import axios from "axios";
+import { messageSlicaActions } from "../store/messageSlice";
 
 export const WebSocketContext = createContext({} as WSContextType);
 
@@ -56,7 +57,8 @@ export function WebSocketContextProvider({ children }: WSContextPropType) {
       };
       userDetailsUpdatedHandler();
     } else if (msgData.type === "message") {
-      console.log(msgData.text);
+      dispath(messageSlicaActions.addMessageSender(msgData));
+      console.log(msgData);
     }
   };
 

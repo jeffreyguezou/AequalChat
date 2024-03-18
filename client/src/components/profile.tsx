@@ -39,6 +39,7 @@ const Profile = () => {
           alert("Uploaded successfully");
           const pp = document.querySelector("#profileImg") as HTMLElement;
           pp.style.backgroundImage = `url("${res.data.data.imageUrl}")`;
+
           dispatch(AppSliceActions.updateProfile(res.data.data.imageUrl));
           const imgUpdateRes = await axios.post("/user/updateUserProfileImg", {
             id: currentUser[0]._id,
@@ -82,7 +83,7 @@ const Profile = () => {
       <div className="">
         <div
           id="profileImg"
-          className="border flex flex-col h-40 w-40 rounded-full"
+          className="border bg-cover flex flex-col h-40 w-40 rounded-full"
         >
           <div className="flex h-full justify-end items-end flex-wrap">
             <div className="m-1 p-1 z-10 bg-slate-500 rounded-lg">
