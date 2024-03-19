@@ -26,15 +26,15 @@ function App() {
   ]);
   return (
     <UserContextProvider>
-      <WebSocketContextProvider>
-        <ThemeProvider>
-          <SelectedUserContextProvider>
+      <ThemeProvider>
+        <SelectedUserContextProvider>
+          <WebSocketContextProvider>
             <LeftDisplayContextProvider>
               <RouterProvider router={router}></RouterProvider>
             </LeftDisplayContextProvider>
-          </SelectedUserContextProvider>
-        </ThemeProvider>
-      </WebSocketContextProvider>
+          </WebSocketContextProvider>
+        </SelectedUserContextProvider>
+      </ThemeProvider>
     </UserContextProvider>
   );
 }

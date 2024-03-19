@@ -1,12 +1,13 @@
 import UserDisplayDiv from "../elements/userDisplayDiv";
 import { useSelector } from "react-redux";
+import { IRootState } from "../store/store";
 
 type ChatHistoryprop = {
   friends;
 };
 
 const ChatHistory = ({ friends }: ChatHistoryprop) => {
-  const msgs = useSelector((state) => state.messages);
+  const msgs = useSelector((state: IRootState) => state.messages);
 
   if (friends) {
     return (
@@ -15,6 +16,7 @@ const ChatHistory = ({ friends }: ChatHistoryprop) => {
           let msgRecieved = msgs[friend];
           return (
             <UserDisplayDiv
+              key={friend}
               userID={friend}
               type="friend"
               onClick={() => {

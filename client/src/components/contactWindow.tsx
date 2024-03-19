@@ -2,7 +2,6 @@ import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import UserDisplayDiv from "../elements/userDisplayDiv";
 import { SelectedUserContext } from "../context/SelectedUserContext";
-import { useSelector } from "react-redux";
 
 type userObj = {
   _id: string;

@@ -21,6 +21,7 @@ exports.messages_get = asyncHandler(async (req, res) => {
   });
 
   if (requiredMsgs) {
+    console.log(requiredMsgs);
     res.json(requiredMsgs);
   }
 });

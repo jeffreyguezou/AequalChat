@@ -4,7 +4,9 @@ import { AppSliceActions } from "../store/appSlice";
 import { useContext } from "react";
 import { UserContext } from "./userContext";
 import axios from "axios";
-import { messageSlicaActions } from "../store/messageSlice";
+import { SelectedUserContext } from "./SelectedUserContext";
+import { fetchMsgs } from "../store/messageSlice";
+import { AppDispatch } from "../store/store";
 
 export const WebSocketContext = createContext({} as WSContextType);
 
@@ -22,11 +24,11 @@ type WSContextType = {
 
 export function WebSocketContextProvider({ children }: WSContextPropType) {
   const [ws, setWs] = useState<WebSocket | null>();
-  const dispath = useDispatch();
+  const dispath = useDispatch<AppDispatch>();
   const user = useContext(UserContext);
+  const selectedUser = useContext(SelectedUserContext);
 
-  const data = useSelector((state) => state.app);
-  console.log(data);
+  console.log(selectedUser);
 
   function connectToWs() {
     const ws = new WebSocket("ws://localhost:4040");
@@ -57,8 +59,7 @@ export function WebSocketContextProvider({ children }: WSContextPropType) {
       };
       userDetailsUpdatedHandler();
     } else if (msgData.type === "message") {
-      dispath(messageSlicaActions.addMessageSender(msgData));
-      console.log(msgData);
+      dispath(fetchMsgs({ current: msgData.recipient, other: msgData.sender }));
     }
   };
 
@@ -92,6 +93,7 @@ export function WebSocketContextProvider({ children }: WSContextPropType) {
         text: message,
       })
     );
+    dispath(fetchMsgs({ current: user.id, other: recipient }));
   };
 
   const wsUserDetailsUpdateHandler = (recipient: string) => {

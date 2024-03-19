@@ -11,10 +11,17 @@ import { AppSliceActions } from "../store/appSlice";
 import Friends from "./friends";
 import { WebSocketContext } from "../context/WebSocketContext";
 import ChatHistory from "./ChatHistory";
+import { SelectedUserContext } from "../context/SelectedUserContext";
 
 const Chats = () => {
   const [currentTab, setCurrentTab] = useState("");
   const [loggedInUserFriends, setLoggedInUserFriends] = useState([]);
+  const [right, setRight] = useState(
+    "w-full sm:w-3/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100"
+  );
+  const [left, setLeft] = useState(
+    "w-full sm:w-2/5 flex flex-col dark:bg-slate-900 dark:text-gray-100"
+  );
 
   const WS = useContext(WebSocketContext);
 
@@ -24,6 +31,7 @@ const Chats = () => {
   const dispath = useDispatch();
 
   let userArr = useSelector((state) => state.app);
+  const { selectedUserId } = useContext(SelectedUserContext);
 
   let userDeets = userArr[0];
 
@@ -51,25 +59,45 @@ const Chats = () => {
     }
   }, [userDeets]);
 
-  console.log(loggedInUserFriends);
   useEffect(() => {
     setCurrentTab(activeTabSetter.activeTab);
   }, [activeTabSetter.activeTab]);
 
+  /*   useEffect(() => {
+    console.log("userid is", selectedUserId);
+    if (!selectedUserId) {
+      console.log("I want chathistory page full screen only on small screen");
+      setLeft(
+        "w-full sm:w-2/5 flex flex-col dark:bg-slate-900 dark:text-gray-100 hidden sm:block"
+      );
+      setRight(
+        "w-full sm:w-3/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100 hidden"
+      );
+    } else {
+      console.log("i want chat page full screen only on small screen");
+      setRight(
+        "w-full sm:w-3/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100 hidden sm:block"
+      );
+      setLeft(
+        "w-full sm:w-2/5 flex flex-col dark:bg-slate-900 dark:text-gray-100 hidden"
+      );
+    }
+  }, [selectedUserId]); */
+
   return (
     <div className="flex ">
-      <div className="w-2/5 flex flex-col dark:bg-slate-900 dark:text-gray-100">
+      <div className={left}>
         {currentTab === "search" && <ContactWindow />}
         {currentTab === "friends" && <Friends />}
         {currentTab === "profile" && <Profile />}
         {currentTab === "chats" && (
           <ChatHistory friends={loggedInUserFriends} />
         )}
-        <div>
+        <div className="hidden sm:block">
           <Optionnav />
         </div>
       </div>
-      <div className="w-3/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100">
+      <div className={right}>
         <ChatWindow onSendReq={(recipient) => WS.sendReqHandler(recipient)} />
       </div>
     </div>

@@ -3,13 +3,14 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useContext } from "react";
 import { WebSocketContext } from "../context/WebSocketContext";
+import { IRootState } from "../store/store";
 
 const UserChatWindow = () => {
   const params = useParams();
   console.log(params);
   const location = useLocation();
   const WS = useContext(WebSocketContext);
-  let selecteduserId;
+  let selecteduserId: string;
   let selectedUserName;
 
   selecteduserId = location.state.userID;
@@ -17,7 +18,7 @@ const UserChatWindow = () => {
 
   const [isFriend, setIsFriend] = useState(false);
 
-  const userArray = useSelector((state) => state.app);
+  const userArray = useSelector((state: IRootState) => state.app);
 
   console.log(userArray);
   useEffect(() => {

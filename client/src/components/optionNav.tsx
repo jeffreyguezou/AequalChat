@@ -1,13 +1,14 @@
 import { useContext, useEffect, useState } from "react";
 import { LeftDisplayContext } from "../context/LeftDisplayContext";
 import { useSelector } from "react-redux";
+import { IRootState } from "../store/store";
 
 const Optionnav = () => {
   const { activeTab, setActiveTab } = useContext(LeftDisplayContext);
 
   const [requestsNo, setRequestsNo] = useState(0);
 
-  const appData = useSelector((state) => state.app);
+  const appData = useSelector((state: IRootState) => state.app);
   let reqData;
 
   useEffect(() => {
