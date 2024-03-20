@@ -16,13 +16,15 @@ import { SelectedUserContext } from "../context/SelectedUserContext";
 const Chats = () => {
   const [currentTab, setCurrentTab] = useState("");
   const [loggedInUserFriends, setLoggedInUserFriends] = useState([]);
+  const [isUserSelected, setUserSelected] = useState(false);
+  const [width, setWidth] = useState(window.innerWidth);
+  const smBreakPt = 640;
   const [right, setRight] = useState(
     "w-full sm:w-3/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100"
   );
   const [left, setLeft] = useState(
     "w-full sm:w-2/5 flex flex-col dark:bg-slate-900 dark:text-gray-100"
   );
-
   const WS = useContext(WebSocketContext);
 
   const user = useContext(UserContext);
@@ -37,6 +39,12 @@ const Chats = () => {
 
   useEffect(() => {
     WS.connectToWs();
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("resize", () => {
+      setWidth(window.innerWidth);
+    });
   }, []);
 
   useEffect(() => {
@@ -63,26 +71,41 @@ const Chats = () => {
     setCurrentTab(activeTabSetter.activeTab);
   }, [activeTabSetter.activeTab]);
 
-  /*   useEffect(() => {
-    console.log("userid is", selectedUserId);
-    if (!selectedUserId) {
-      console.log("I want chathistory page full screen only on small screen");
-      setLeft(
-        "w-full sm:w-2/5 flex flex-col dark:bg-slate-900 dark:text-gray-100 hidden sm:block"
-      );
-      setRight(
-        "w-full sm:w-3/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100 hidden"
-      );
+  useEffect(() => {
+    if (selectedUserId) {
+      setUserSelected(true);
     } else {
-      console.log("i want chat page full screen only on small screen");
-      setRight(
-        "w-full sm:w-3/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100 hidden sm:block"
-      );
+      setUserSelected(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (width < smBreakPt) {
+      if (isUserSelected) {
+        console.log(window.innerWidth);
+        setLeft(
+          "hidden s:w-2/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100"
+        );
+        setRight(
+          "w-screen s:w-3/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100"
+        );
+      } else {
+        setRight(
+          "hidden sm:w-3/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100"
+        );
+        setLeft(
+          "w-screen sm:w-2/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100"
+        );
+      }
+    } else {
       setLeft(
-        "w-full sm:w-2/5 flex flex-col dark:bg-slate-900 dark:text-gray-100 hidden"
+        "w-screen sm:w-2/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100"
+      );
+      setRight(
+        "w-screen s:w-3/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100"
       );
     }
-  }, [selectedUserId]); */
+  }, [isUserSelected, width]);
 
   return (
     <div className="flex ">
