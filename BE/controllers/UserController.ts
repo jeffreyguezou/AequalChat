@@ -129,6 +129,25 @@ exports.update_UserProfile_Bio = asyncHandler(async (req, res, next) => {
   }
 });
 
+exports.update_UserProfile_Preference = asyncHandler(async (req, res) => {
+  const { id, preference } = req.body;
+
+  const update = await User.findOneAndUpdate(
+    {
+      _id: id,
+    },
+    {
+      preferences: preference,
+    },
+    {
+      new: true,
+    }
+  );
+  if (update) {
+    res.json("Updated preferences");
+  }
+});
+
 exports.new_request_Recieved_post = asyncHandler(async (req, res, next) => {
   const { id, reqBy } = req.body;
 

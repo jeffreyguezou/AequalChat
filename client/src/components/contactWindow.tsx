@@ -74,7 +74,7 @@ const ContactWindow = () => {
         </div>
         <div className="flex-grow">
           {searchResults.length > 0 && seachTerm ? (
-            <div className="bg-slate-700 m-2">
+            <div className="dark:bg-slate-700 light:bg-red-200 m-2">
               {searchResults.map((result: userObj) => {
                 return (
                   <UserDisplayDiv

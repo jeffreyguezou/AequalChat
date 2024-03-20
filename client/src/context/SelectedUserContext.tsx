@@ -18,6 +18,8 @@ type SelectedUserProviderType = {
   selectedUserProfile: string;
   setSelectedUserProfile: React.Dispatch<React.SetStateAction<string>>;
   setSelectedUserBio: React.Dispatch<React.SetStateAction<string>>;
+  setSelectedUserStatus: React.Dispatch<React.SetStateAction<string>>;
+  selectedUserStatus: string;
   resetSelectedUser: () => void;
 };
 
@@ -26,12 +28,14 @@ export function SelectedUserContextProvider({ children }: SelectedUserProps) {
   const [selectedUserName, setSelectedUserName] = useState("");
   const [selectedUserBio, setSelectedUserBio] = useState("");
   const [selectedUserProfile, setSelectedUserProfile] = useState("");
+  const [selectedUserStatus, setSelectedUserStatus] = useState("");
 
   const resetSelectedUser = () => {
     setSelectedUserId("");
     setSelectedUserName("");
     setSelectedUserBio("");
     setSelectedUserProfile("");
+    setSelectedUserStatus("");
   };
 
   let provider: SelectedUserProviderType = {
@@ -44,6 +48,8 @@ export function SelectedUserContextProvider({ children }: SelectedUserProps) {
     selectedUserBio,
     setSelectedUserBio,
     resetSelectedUser,
+    selectedUserStatus,
+    setSelectedUserStatus,
   };
 
   return (

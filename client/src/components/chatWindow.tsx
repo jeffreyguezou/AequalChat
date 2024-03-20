@@ -34,6 +34,14 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
     setMsgText(event.currentTarget.value);
   };
 
+  const msgInputFocusHandler = () => {
+    WS.setTypingHandler(selectedUser.selectedUserId, "typing");
+  };
+
+  const msgRemoveFocusHandler = () => {
+    WS.setTypingHandler(selectedUser.selectedUserId, "");
+  };
+
   const sendMsgHandler = () => {
     WS.sendMsgHandler(msgText, selectedUser.selectedUserId);
     setMsgText("");
@@ -83,7 +91,10 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
               ></img>
 
               <h1>{selectedUser.selectedUserName}</h1>
-              <div className="text-right flex-grow italic font-extralight">
+              <h4 className="italic font-extralight">
+                {selectedUser.selectedUserStatus}
+              </h4>
+              <div className="text-right flex-grow italic">
                 <h3>{selectedUser.selectedUserBio}</h3>
               </div>
             </div>
@@ -114,7 +125,7 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
                       return (
                         <div
                           key={msg._id}
-                          className="bg-slate-600 p-2 rounded-lg m-2 lg:w-1/3 w-2/3 mr-auto"
+                          className="dark:bg-slate-600 bg-slate-300 p-2 rounded-lg m-2 lg:w-1/3 w-2/3 mr-auto"
                         >
                           {msg.text}
                         </div>
@@ -123,7 +134,7 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
                       return (
                         <div
                           key={msg._id}
-                          className="bg-lime-800 p-2 rounded-lg w-2/3 lg:w-1/3 m-2 ml-auto"
+                          className="dark:bg-lime-800 bg-lime-50 p-2 rounded-lg w-2/3 lg:w-1/3 m-2 ml-auto"
                         >
                           {msg.text}
                         </div>
@@ -138,6 +149,8 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
           {isFriend && (
             <div className="flex m-4 gap-4 items-center">
               <input
+                onFocus={msgInputFocusHandler}
+                onBlur={msgRemoveFocusHandler}
                 className="p-2 flex-grow dark:text-slate-900"
                 type="text"
                 placeholder="type your message"

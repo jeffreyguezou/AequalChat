@@ -9,7 +9,7 @@ type ThemeProviderrType = {
 
 const ThemeProvider = ({ children }: ThemeProviderrType) => {
   const [dark, setDark] = useState("");
-  //const { dark } = useContext(UserContext);
+  const userContext = useContext(UserContext);
 
   const { id } = useContext(UserContext);
 
@@ -26,8 +26,15 @@ const ThemeProvider = ({ children }: ThemeProviderrType) => {
   }, [id]);
 
   useEffect(() => {
+    setDark(userContext.dark);
+  }, [userContext.dark]);
+
+  useEffect(() => {
     if (dark === "dark") {
       document.querySelector("#themeProvider")?.classList.add("dark");
+    } else {
+      document.querySelector("#themeProvider")?.classList.remove("dark");
+      document.querySelector("#themeProvider")?.classList.add("light");
     }
   }, [dark]);
 

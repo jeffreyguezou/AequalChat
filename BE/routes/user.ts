@@ -18,5 +18,6 @@ router.post("/updateUserProfileImg", user_Controller.update_UserProfile_Img);
 router.post("/updateUserBio", user_Controller.update_UserProfile_Bio);
 router.post("/updateReq", user_Controller.new_request_Recieved_post);
 router.post("/acceptReq", user_Controller.accept_request_post);
+router.post("/updatePref", user_Controller.update_UserProfile_Preference);
 
 module.exports = router;

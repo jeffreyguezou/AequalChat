@@ -20,6 +20,7 @@ type WSContextType = {
   wsUserDetailsUpdateHandler: (recipient: string) => void;
   setWs: React.Dispatch<React.SetStateAction<WebSocket | null | undefined>>;
   sendMsgHandler: (message: string, recipient: string) => void;
+  setTypingHandler: (recipient: string, text: string) => void;
 };
 
 export function WebSocketContextProvider({ children }: WSContextPropType) {
@@ -60,6 +61,8 @@ export function WebSocketContextProvider({ children }: WSContextPropType) {
       userDetailsUpdatedHandler();
     } else if (msgData.type === "message") {
       dispath(fetchMsgs({ current: msgData.recipient, other: msgData.sender }));
+    } else if (msgData.type === "status") {
+      selectedUser.setSelectedUserStatus(msgData.text);
     }
   };
 
@@ -116,12 +119,23 @@ export function WebSocketContextProvider({ children }: WSContextPropType) {
     userDetailsUpdatedHandler();
   };
 
+  const setTypingHandler = async (recipient: string, text: string) => {
+    ws?.send(
+      JSON.stringify({
+        recipient,
+        text,
+        type: "status",
+      })
+    );
+  };
+
   let providerVal: WSContextType = {
     connectToWs,
     sendReqHandler,
     wsUserDetailsUpdateHandler,
     setWs,
     sendMsgHandler,
+    setTypingHandler,
   };
 
   return (
