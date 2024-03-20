@@ -59,6 +59,7 @@ exports.user_registration_post = asyncHandler(async (req, res) => {
     password,
     friends,
     requests,
+    sentRequests,
     preferences,
     bio,
     profile,
@@ -74,6 +75,7 @@ exports.user_registration_post = asyncHandler(async (req, res) => {
       profile,
       friends,
       requests,
+      sentRequests,
     });
     jwt.sign(
       { userId: createdUser._id, username },

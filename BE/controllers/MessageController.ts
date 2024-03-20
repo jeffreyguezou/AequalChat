@@ -9,7 +9,6 @@ mongoose.connect(process.env.MONGO_URL);
 exports.messages_get = asyncHandler(async (req, res) => {
   const msgParams = req.params;
   let qparams = new URLSearchParams(msgParams.qparams);
-  console.log(qparams);
   let current = qparams.get("current");
   let other = qparams.get("other");
   let requiredMsgs = await Message.find({
@@ -21,7 +20,6 @@ exports.messages_get = asyncHandler(async (req, res) => {
   });
 
   if (requiredMsgs) {
-    console.log(requiredMsgs);
     res.json(requiredMsgs);
   }
 });

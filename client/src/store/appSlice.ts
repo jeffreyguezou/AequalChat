@@ -20,6 +20,11 @@ const AppSlice = createSlice({
         state[0].requests = [...state[0].requests, action.payload];
       }
     },
+    sentRequest: (state, action) => {
+      if (!state[0].sentRequests.includes(action.payload)) {
+        state[0].sentRequests = [...state[0].sentRequests, action.payload];
+      }
+    },
     acceptRequest: (state, action) => {
       if (state[0].requests.includes(action.payload)) {
         let filteredRequests: string[] = [];

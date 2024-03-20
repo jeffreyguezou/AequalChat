@@ -1,5 +1,5 @@
 import { ReactNode, createContext, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { AppSliceActions } from "../store/appSlice";
 import { useContext } from "react";
 import { UserContext } from "./userContext";
@@ -54,7 +54,6 @@ export function WebSocketContextProvider({ children }: WSContextPropType) {
           userName: user.userName,
         });
         if (latestUserDetails) {
-          console.log(latestUserDetails.data);
           dispath(AppSliceActions.updateUser(latestUserDetails.data));
         }
       };
@@ -112,7 +111,6 @@ export function WebSocketContextProvider({ children }: WSContextPropType) {
         userName: user.userName,
       });
       if (latestUserDetails) {
-        console.log(latestUserDetails.data);
         dispath(AppSliceActions.updateUser(latestUserDetails.data));
       }
     };

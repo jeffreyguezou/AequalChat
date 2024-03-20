@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { SelectedUserContext } from "../context/SelectedUserContext";
 import { WebSocketContext } from "../context/WebSocketContext";
 import { IRootState } from "../store/store";
-import Optionnav from "./optionNav";
+import { AppSliceActions } from "../store/appSlice";
 
 type ChatWindowProps = {
   onSendReq: (recipient: string) => void;
@@ -13,19 +13,27 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
   const [isFriend, setIsFriend] = useState(false);
   const [msgText, setMsgText] = useState("");
   const [iterableMsgs, setiterableMsgs] = useState([]);
+  const [isSentReq, setIsSentReq] = useState(false);
 
   const selectedUser = useContext(SelectedUserContext);
   const WS = useContext(WebSocketContext);
   const userArray = useSelector((state: IRootState) => state.app);
   const divUnderMessages = useRef<HTMLDivElement | null>(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (userArray[0]) {
       let userFriends = userArray[0].friends;
+      let userRequests = userArray[0].sentRequests;
       if (userFriends.includes(selectedUser.selectedUserId)) {
         setIsFriend(true);
       } else {
         setIsFriend(false);
+      }
+      if (userRequests.includes(selectedUser.selectedUserId)) {
+        setIsSentReq(true);
+      } else {
+        setIsSentReq(false);
       }
     }
   }, [userArray, selectedUser]);
@@ -98,15 +106,21 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
                 <h3>{selectedUser.selectedUserBio}</h3>
               </div>
             </div>
-            {!isFriend && (
+            {!isFriend && !isSentReq && (
               <div className="flex flex-grow items-center justify-center">
+                {isSentReq}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  onClick={() => onSendReq(selectedUser.selectedUserId)}
+                  onClick={() => {
+                    dispatch(
+                      AppSliceActions.sentRequest(selectedUser.selectedUserId)
+                    );
+                    onSendReq(selectedUser.selectedUserId);
+                  }}
                   className="h-6 w-6 border-slate-300 border cursor-pointer"
                 >
                   <path
@@ -115,6 +129,11 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
                     d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z"
                   />
                 </svg>
+              </div>
+            )}
+            {!isFriend && isSentReq && (
+              <div className="flex h-full items-center justify-center">
+                Sent request. Waiting for user to accept.
               </div>
             )}
             {isFriend && iterableMsgs && (
@@ -180,12 +199,6 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
           )}
         </>
       )}
-      <div
-        className="block sm:hidden
-      "
-      >
-        <Optionnav />
-      </div>
       {!selectedUser.selectedUserId && (
         <div>Select a user to start chaetting</div>
       )}

@@ -34,12 +34,10 @@ const ContactWindow = () => {
             },
           })
           .then((response) => {
-            console.log(response.data);
             setSearchResults(response.data);
           });
       }, 500);
     }
-
     return () => {
       clearTimeout(fetchData);
     };

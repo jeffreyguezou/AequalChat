@@ -150,19 +150,29 @@ exports.update_UserProfile_Preference = asyncHandler(async (req, res) => {
 
 exports.new_request_Recieved_post = asyncHandler(async (req, res, next) => {
   const { id, reqBy } = req.body;
-
-  console.log("en tered lo");
-
   let userReq = await getExistingRequests(id);
+  let sentReq = await getAlreadySentRequests(reqBy);
   userReq.push(reqBy);
-  const update = await User.findOneAndUpdate(
+  sentReq.push(id);
+  const Recupdate = await User.findOneAndUpdate(
     { _id: id },
     {
       requests: userReq,
     },
     { new: true }
   );
-  if (update) {
+  const sendUpdate = await User.findOneAndUpdate(
+    {
+      _id: reqBy,
+    },
+    {
+      sentRequests: sentReq,
+    },
+    {
+      new: true,
+    }
+  );
+  if (Recupdate && sendUpdate) {
     res.json("UPDATED REQUESTS IN DB");
   }
 });
@@ -170,6 +180,11 @@ exports.new_request_Recieved_post = asyncHandler(async (req, res, next) => {
 async function getExistingRequests(id) {
   const userDetails = await User.findOne({ _id: id });
   return userDetails.requests;
+}
+
+async function getAlreadySentRequests(id) {
+  const userDetails = await User.findOne({ _id: id });
+  return userDetails.sentRequests;
 }
 
 exports.accept_request_post = asyncHandler(async (req, res) => {
@@ -181,12 +196,20 @@ exports.accept_request_post = asyncHandler(async (req, res) => {
   const senderUpdate = await updateFriendsOnReqAccept(acceptedReqID, id); //for sender
 
   let userReq = await getExistingRequests(id);
+  let otherSentReq = await getAlreadySentRequests(acceptedReqID);
 
   let filteredRequests: string[] = [];
+  let filteredSent: string[] = [];
 
   userReq.forEach((req) => {
     if (!req._id.equals(acceptedReqID)) {
       filteredRequests.push(req._id as string);
+    }
+  });
+
+  otherSentReq.forEach((req) => {
+    if (!req._id.equals(id)) {
+      filteredSent.push(req._id as string);
     }
   });
 
@@ -200,6 +223,13 @@ exports.accept_request_post = asyncHandler(async (req, res) => {
         requests: filteredRequests,
       },
       { new: true }
+    );
+    const deleteSentReqOnAccept = await User.findOneAndUpdate(
+      { _id: acceptedReqID },
+      { sentRequests: filteredSent },
+      {
+        new: true,
+      }
     );
   }
 });

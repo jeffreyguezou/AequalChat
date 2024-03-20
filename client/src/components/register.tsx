@@ -59,7 +59,7 @@ const Register = () => {
   };
 
   const registerHandler = async (otp: string) => {
-    fetchSavedOTPHandler();
+    await fetchSavedOTPHandler();
     if (fetchedOTP == otp) {
       const { data } = await axios.post("/auth/register", {
         username: enteredName,
@@ -71,6 +71,7 @@ const Register = () => {
         bio: "Hello there, General Kenobi",
         friends: [],
         requests: [],
+        sentRequests: [],
       });
 
       if (data) {
