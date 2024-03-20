@@ -34,6 +34,14 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
     setMsgText(event.currentTarget.value);
   };
 
+  const msgInputFocusHandler = () => {
+    WS.setTypingHandler(selectedUser.selectedUserId, "typing");
+  };
+
+  const msgRemoveFocusHandler = () => {
+    WS.setTypingHandler(selectedUser.selectedUserId, "");
+  };
+
   const sendMsgHandler = () => {
     WS.sendMsgHandler(msgText, selectedUser.selectedUserId);
     setMsgText("");
@@ -83,7 +91,10 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
               ></img>
 
               <h1>{selectedUser.selectedUserName}</h1>
-              <div className="text-right flex-grow italic font-extralight">
+              <h4 className="italic font-extralight">
+                {selectedUser.selectedUserStatus}
+              </h4>
+              <div className="text-right flex-grow italic">
                 <h3>{selectedUser.selectedUserBio}</h3>
               </div>
             </div>
@@ -138,6 +149,8 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
           {isFriend && (
             <div className="flex m-4 gap-4 items-center">
               <input
+                onFocus={msgInputFocusHandler}
+                onBlur={msgRemoveFocusHandler}
                 className="p-2 flex-grow dark:text-slate-900"
                 type="text"
                 placeholder="type your message"
