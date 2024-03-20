@@ -125,7 +125,7 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
                       return (
                         <div
                           key={msg._id}
-                          className="bg-slate-600 p-2 rounded-lg m-2 lg:w-1/3 w-2/3 mr-auto"
+                          className="dark:bg-slate-600 bg-slate-300 p-2 rounded-lg m-2 lg:w-1/3 w-2/3 mr-auto"
                         >
                           {msg.text}
                         </div>
@@ -134,7 +134,7 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
                       return (
                         <div
                           key={msg._id}
-                          className="bg-lime-800 p-2 rounded-lg w-2/3 lg:w-1/3 m-2 ml-auto"
+                          className="dark:bg-lime-800 bg-lime-50 p-2 rounded-lg w-2/3 lg:w-1/3 m-2 ml-auto"
                         >
                           {msg.text}
                         </div>

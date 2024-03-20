@@ -12,7 +12,7 @@ const Profile = () => {
   const [bio, setBio] = useState("");
 
   const WS = useContext(WebSocketContext);
-  const { setUserName, setId } = useContext(UserContext);
+  const { setUserName, setId, dark, setDark } = useContext(UserContext);
 
   let currentUser = useSelector((state) => state.app);
   const dispatch = useDispatch();
@@ -78,6 +78,17 @@ const Profile = () => {
     }
   };
 
+  const themeChangeHandler = async (event) => {
+    setDark(event.target.value);
+    const prefUpdate = await axios.post("user/updatePref", {
+      id: currentUser[0]._id,
+      preference: event.target.value,
+    });
+    if (prefUpdate) {
+      console.log(prefUpdate.data);
+    }
+  };
+
   return (
     <div className="flex-grow flex flex-col gap-4 items-center justify-center">
       <div className="">
@@ -86,7 +97,7 @@ const Profile = () => {
           className="border bg-cover flex flex-col h-40 w-40 rounded-full"
         >
           <div className="flex h-full justify-end items-end flex-wrap">
-            <div className="m-1 p-1 z-10 bg-slate-500 rounded-lg">
+            <div className="m-1 p-1 z-10 dark:bg-slate-500 bg-gray-200 border rounded-lg">
               <label className="cursor-pointer">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -168,6 +179,29 @@ const Profile = () => {
               />
             </svg>
           )}
+        </div>
+      </div>
+      <div className="flex gap-5">
+        <label>Theme</label>
+        <div>
+          <input
+            onChange={themeChangeHandler}
+            type="radio"
+            value="dark"
+            name="dark"
+            checked={dark === "dark"}
+          ></input>
+          <label>DARK</label>
+        </div>
+        <div>
+          <input
+            onChange={themeChangeHandler}
+            type="radio"
+            value="light"
+            name="light"
+            checked={dark === "light"}
+          ></input>
+          <label>LIGHT</label>
         </div>
       </div>
 

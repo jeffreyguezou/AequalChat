@@ -20,10 +20,10 @@ const Chats = () => {
   const [width, setWidth] = useState(window.innerWidth);
   const smBreakPt = 640;
   const [right, setRight] = useState(
-    "w-full sm:w-3/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100"
+    "w-full sm:w-3/5 h-screen flex flex-col bg-slate-100 dark:bg-slate-800 dark:text-gray-100"
   );
   const [left, setLeft] = useState(
-    "w-full sm:w-2/5 flex flex-col dark:bg-slate-900 dark:text-gray-100"
+    "w-full sm:w-2/5 flex flex-col bg-slate-200 dark:bg-slate-900 dark:text-gray-100"
   );
   const WS = useContext(WebSocketContext);
 
@@ -77,7 +77,7 @@ const Chats = () => {
     } else {
       setUserSelected(false);
     }
-  }, []);
+  }, [selectedUserId]);
 
   useEffect(() => {
     if (width < smBreakPt) {

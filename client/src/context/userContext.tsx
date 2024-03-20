@@ -27,7 +27,7 @@ export function UserContextProvider({ children }: UserContextProviderProp) {
     axios.get("/user/verifyUserProfile").then((res) => {
       setId(res.data.userData.userId);
       setUserName(res.data.userData.username);
-      setDark;
+      setDark(res.data.userData.preferences);
     });
   }, []);
 
