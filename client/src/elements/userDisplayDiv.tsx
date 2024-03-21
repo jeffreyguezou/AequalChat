@@ -69,7 +69,7 @@ const UserDisplayDiv = ({ userID, type, onClick }: UserDisaplayDivType) => {
   return (
     <div
       onClick={userDivClickHandler}
-      className="border-b my-2 p-1 cursor-pointer flex gap-2 items-center"
+      className="border-b  border-slate-400 dark:border-slate-50 my-2 p-1 cursor-pointer flex gap-2 items-center"
     >
       <img className="h-8 w-8 rounded-full" src={userProfile}></img>
       <div className="flex w-full p-2 justify-between">

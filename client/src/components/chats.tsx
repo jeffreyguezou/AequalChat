@@ -84,25 +84,25 @@ const Chats = () => {
       if (isUserSelected) {
         console.log(window.innerWidth);
         setLeft(
-          "hidden s:w-2/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100 border border-slate-400"
+          "hidden s:w-2/5 h-screen flex flex-col bg-slate-200 dark:bg-slate-800 dark:text-gray-100 border border-slate-400"
         );
         setRight(
-          "w-screen s:w-3/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100"
+          "w-screen s:w-3/5 h-screen flex flex-col bg-slate-100  dark:bg-slate-800 dark:text-gray-100"
         );
       } else {
         setRight(
-          "hidden sm:w-3/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100"
+          "hidden sm:w-3/5 h-screen flex flex-col bg-slate-100 dark:bg-slate-800 dark:text-gray-100"
         );
         setLeft(
-          "w-screen sm:w-2/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100 border border-slate-400"
+          "w-screen sm:w-2/5 h-screen flex flex-col bg-slate-200  dark:bg-slate-800 dark:text-gray-100 border border-slate-400"
         );
       }
     } else {
       setLeft(
-        "w-screen sm:w-2/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100 border border-slate-400"
+        "w-screen sm:w-2/5 h-screen flex flex-col bg-slate-200 dark:bg-slate-800 dark:text-gray-100 border border-slate-400"
       );
       setRight(
-        "w-screen s:w-3/5 h-screen flex flex-col  dark:bg-slate-800 dark:text-gray-100"
+        "w-screen s:w-3/5 h-screen flex flex-col bg-slate-100 dark:bg-slate-800 dark:text-gray-100"
       );
     }
   }, [isUserSelected, width]);

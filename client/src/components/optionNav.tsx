@@ -27,7 +27,7 @@ const Optionnav = () => {
     <div className="mb-auto">
       <div className="dark:bg-slate-600 flex h-14 bottom-0">
         <div
-          className="p-2 border flex flex-grow items-center text-center justify-center cursor-pointer"
+          className="p-2 border border-slate-400 dark:border-slate-50 flex flex-grow items-center text-center justify-center cursor-pointer"
           onClick={() => setacuurentTab("chats")}
         >
           <svg
@@ -46,7 +46,7 @@ const Optionnav = () => {
           </svg>
         </div>
         <div
-          className=" border flex flex-grow items-center text-center justify-center cursor-pointer"
+          className=" border  border-slate-400 dark:border-slate-50 flex flex-grow items-center text-center justify-center cursor-pointer"
           onClick={() => setacuurentTab("friends")}
         >
           <svg
@@ -70,7 +70,7 @@ const Optionnav = () => {
           )}
         </div>
         <div
-          className="border flex flex-grow items-center text-center justify-center cursor-pointer"
+          className="border  border-slate-400 dark:border-slate-50 flex flex-grow items-center text-center justify-center cursor-pointer"
           onClick={() => setacuurentTab("search")}
         >
           <svg
@@ -89,7 +89,7 @@ const Optionnav = () => {
           </svg>
         </div>
         <div
-          className="p-2 border flex flex-grow items-center text-center justify-center cursor-pointer"
+          className="p-2 border  border-slate-400 dark:border-slate-50 flex flex-grow items-center text-center justify-center cursor-pointer"
           onClick={() => setacuurentTab("profile")}
         >
           <svg

@@ -132,7 +132,7 @@ const Profile = () => {
       <div className="flex gap-2 items-center">
         <label>Bio</label>
         <input
-          className="dark:bg-slate-600 p-1"
+          className="dark:bg-slate-600 bg-slate-50 p-1"
           value={bio}
           type="text"
           onChange={bioChangeHandler}
@@ -207,7 +207,7 @@ const Profile = () => {
 
       <button
         onClick={logoutHandler}
-        className="border p-1 rounded-lg hover:bg-slate-200 hover:text-gray-900"
+        className="border  border-slate-400 dark:border-slate-50 p-1 rounded-lg hover:bg-slate-300 hover:text-gray-900"
       >
         Log out
       </button>

@@ -61,7 +61,9 @@ export function WebSocketContextProvider({ children }: WSContextPropType) {
     } else if (msgData.type === "message") {
       dispath(fetchMsgs({ current: msgData.recipient, other: msgData.sender }));
     } else if (msgData.type === "status") {
-      selectedUser.setSelectedUserStatus(msgData.text);
+      if (selectedUser.selectedUserId === msgData.sender) {
+        selectedUser.setSelectedUserStatus(msgData.text);
+      }
     }
   };
 
