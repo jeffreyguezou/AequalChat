@@ -7,6 +7,7 @@ import { WebSocketContext } from "../context/WebSocketContext";
 import { SelectedUserContext } from "../context/SelectedUserContext";
 import { fetchMsgs } from "../store/messageSlice";
 import { AppDispatch } from "../store/store";
+import { useQuery } from "@tanstack/react-query";
 
 interface UserDisaplayDivType {
   userID: string;
@@ -21,23 +22,33 @@ const UserDisplayDiv = ({ userID, type, onClick }: UserDisaplayDivType) => {
   const [unRead, setUnRead] = useState([]);
   const [msgCount, setMsgCount] = useState(0);
 
+  const [enabled, setEnabled] = useState(false);
+
   const dispatch = useDispatch<AppDispatch>();
 
   const { id } = useContext(UserContext);
 
   const WS = useContext(WebSocketContext);
   const SelectedUser = useContext(SelectedUserContext);
-  async function getData() {
-    const { data } = await axios.get(`/user/getUserDetails/${userID}`);
+
+  const { data } = useQuery({
+    queryKey: [`${userID}`],
+    queryFn: async () => {
+      const { data } = await axios.get(`/user/getUserDetails/${userID}`);
+      return data;
+    },
+    enabled: enabled,
+  });
+  useEffect(() => {
+    setEnabled(true);
+  }, [userID]);
+  useEffect(() => {
     if (data) {
       setUserName(data.username);
       setUserProfile(data.profile);
       setUserBio(data.bio);
     }
-  }
-  if (userID) {
-    getData();
-  }
+  }, [data]);
 
   let userData = useSelector((state) => state.app);
 

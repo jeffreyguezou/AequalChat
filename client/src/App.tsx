@@ -9,6 +9,7 @@ import ThemeProvider from "./context/themeProvider";
 import { LeftDisplayContextProvider } from "./context/LeftDisplayContext";
 import { WebSocketContextProvider } from "./context/WebSocketContext";
 import { SelectedUserContextProvider } from "./context/SelectedUserContext";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
 function App() {
   axios.defaults.baseURL = "http://localhost:4040";
@@ -25,18 +26,22 @@ function App() {
       element: <Chats />,
     },
   ]);
+
+  const queryClient = new QueryClient();
   return (
-    <UserContextProvider>
-      <ThemeProvider>
-        <SelectedUserContextProvider>
-          <WebSocketContextProvider>
-            <LeftDisplayContextProvider>
-              <RouterProvider router={router}></RouterProvider>
-            </LeftDisplayContextProvider>
-          </WebSocketContextProvider>
-        </SelectedUserContextProvider>
-      </ThemeProvider>
-    </UserContextProvider>
+    <QueryClientProvider client={queryClient}>
+      <UserContextProvider>
+        <ThemeProvider>
+          <SelectedUserContextProvider>
+            <WebSocketContextProvider>
+              <LeftDisplayContextProvider>
+                <RouterProvider router={router}></RouterProvider>
+              </LeftDisplayContextProvider>
+            </WebSocketContextProvider>
+          </SelectedUserContextProvider>
+        </ThemeProvider>
+      </UserContextProvider>
+    </QueryClientProvider>
   );
 }
 

@@ -5,9 +5,13 @@ import { AppSliceActions } from "../store/appSlice";
 import { WebSocketContext } from "../context/WebSocketContext";
 import { UserContext } from "../context/userContext";
 import { useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 
 const Profile = () => {
   const [isDisabled, setIsDisabled] = useState(true);
+
+  const [bioQueryEnabled, setBioQueryEnabled] = useState(false);
+  const [themeQueryEnabled, setThemeQueryEnabled] = useState(false);
 
   const [bio, setBio] = useState("");
 
@@ -17,6 +21,19 @@ const Profile = () => {
   let currentUser = useSelector((state) => state.app);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  async function postBio() {
+    const bioUpdateRes = await axios.post("/user/updateUserBio", {
+      id: currentUser[0]._id,
+      bio: bio,
+    });
+    return bioUpdateRes;
+  }
+  const { data: bioUpdateRes } = useQuery({
+    queryKey: [currentUser[0]._id, "bio"],
+    queryFn: postBio,
+    enabled: bioQueryEnabled,
+  });
 
   useEffect(() => {
     const pp = document.querySelector("#profileImg") as HTMLElement;
@@ -59,11 +76,9 @@ const Profile = () => {
 
   const saveBioHandler = async () => {
     dispatch(AppSliceActions.updateBio(bio));
-    const bioUpdateRes = await axios.post("/user/updateUserBio", {
-      id: currentUser[0]._id,
-      bio: bio,
-    });
+    setBioQueryEnabled(true);
     if (bioUpdateRes) {
+      console.log(bioUpdateRes);
       console.log("updated");
     }
   };
