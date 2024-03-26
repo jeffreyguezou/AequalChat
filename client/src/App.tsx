@@ -1,8 +1,9 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Register from "./components/register";
 import axios from "axios";
+import React from "react";
 import Login from "./components/login";
-import Chats from "./components/chats";
+const Chats = React.lazy(() => import("./components/chats"));
 import { UserContextProvider } from "./context/userContext";
 import ThemeProvider from "./context/themeProvider";
 import { LeftDisplayContextProvider } from "./context/LeftDisplayContext";

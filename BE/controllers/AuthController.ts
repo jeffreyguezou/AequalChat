@@ -134,7 +134,11 @@ exports.login_post = asyncHandler(async (req, res) => {
           });
         }
       );
+    } else {
+      res.json("invalid password");
     }
+  } else {
+    res.json("No user found");
   }
 });
 

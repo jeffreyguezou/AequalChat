@@ -38,28 +38,41 @@ const InputWrapper = styled.div`
   }
 `;
 
-const FloatingLabelInput = styled.input`
+const FloatingLabelInput = styled.input<customInput>`
   width: 100%;
   height: 40px;
-  border: 1px solid #a6a6a6;
+  border: 1px solid ${(props) => (props.error === "true" ? "red" : "#a6a6a6")};
+  background-color: ${(props) => (props.error === "true" ? "#FBE8E8" : "")};
   border-radius: 2px;
   padding: 10px;
 `;
+
+type customInput = {
+  error: string;
+};
 
 interface FloatingInputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   labelName: string;
   type: string;
+  error: string;
 }
 
-const FloatingInput = ({ labelName, type, ...props }: FloatingInputProps) => {
+const FloatingInput = ({
+  labelName,
+  type,
+  error,
+  ...props
+}: FloatingInputProps) => {
   return (
     <div className={"m-4 w-full"}>
       <InputWrapper>
+        {error === "true" && <span className="text-red-400">Invalid</span>}
         <div>
           <FloatingLabelInput
             type={type}
             placeholder=" "
+            error={error}
             {...props}
           ></FloatingLabelInput>
           <span>{labelName}</span>

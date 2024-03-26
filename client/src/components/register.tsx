@@ -16,19 +16,27 @@ const Register = () => {
   const [showCPError, setShowCPError] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [generatedOTPID, setGeneratedOTPID] = useState("");
+
+  const [isNameError, setisNameError] = useState(true);
+  const [isMailError, setisMailError] = useState(true);
+  const [isPwError, setisPwError] = useState(true);
+
   let fetchedOTP: string;
 
   let navigate = useNavigate();
 
   const nameChangeHandler = (event: React.FormEvent<HTMLInputElement>) => {
     setEnteredName(event.currentTarget.value);
+    setisNameError(true);
   };
 
   const mailChangeHandler = (event: React.FormEvent<HTMLInputElement>) => {
     setEnteredEmail(event.currentTarget.value);
+    setisMailError(true);
   };
   const passwordChangeHandler = (event: React.FormEvent<HTMLInputElement>) => {
     setEnteredPassword(event.currentTarget.value);
+    setisPwError(true);
   };
   const reEnterPasswordHandler = (event: React.FormEvent<HTMLInputElement>) => {
     setReEnteredPassword(event.currentTarget.value);
@@ -36,18 +44,24 @@ const Register = () => {
   };
 
   let isDark = useTheme();
-  //let generatedOTP: string;
 
   const otpGenHandler = async () => {
-    const { data } = await axios.post("/auth/generateotp", {
-      email: enteredEmail,
-    });
-    if (data) {
-      console.log(data);
-      alert("OTP sent to mail");
-      setGeneratedOTPID(data);
-
-      setShowOtpModal(true);
+    if (enteredName == "") {
+      setisNameError(false);
+    } else if (enteredEmail == "") {
+      setisMailError(false);
+    } else if (enteredPassword == "") {
+      setisPwError(false);
+    } else if (!isRPasswordDirty) {
+    } else {
+      const { data } = await axios.post("/auth/generateotp", {
+        email: enteredEmail,
+      });
+      if (data) {
+        alert("OTP sent to mail");
+        setGeneratedOTPID(data);
+        setShowOtpModal(true);
+      }
     }
   };
 
@@ -110,24 +124,30 @@ const Register = () => {
             value={enteredName}
             onChange={nameChangeHandler}
             labelName="User Name"
+            error={(!isNameError).toString()}
             type="text"
           />
+
           <FloatingInput
             value={enteredEmail}
             onChange={mailChangeHandler}
             labelName="Email"
+            error={(!isMailError).toString()}
             type="email"
           />
+
           <FloatingInput
             value={enteredPassword}
             onChange={passwordChangeHandler}
             labelName="Password"
+            error={(!isPwError).toString()}
             type="password"
           />
           <FloatingInput
             value={reEnteredPassword}
             onChange={reEnterPasswordHandler}
             labelName="Re-enter password"
+            error={(isRPasswordDirty && showCPError).toString()}
             type="password"
           />
           {showCPError && isRPasswordDirty ? (

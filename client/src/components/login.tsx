@@ -9,6 +9,8 @@ import { UserContext } from "../context/userContext";
 const Login = () => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const [userNameError, setUserNameError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
 
   const userContext = useContext(UserContext);
   const navigate = useNavigate();
@@ -19,18 +21,29 @@ const Login = () => {
       password,
     });
     if (loggedInUser) {
-      userContext.setUserName(userName);
-      userContext.setId(loggedInUser.data.id);
-      navigate("/chats");
+      console.log(loggedInUser);
+      if (loggedInUser.data.id) {
+        userContext.setUserName(userName);
+        userContext.setId(loggedInUser.data.id);
+        navigate("/chats");
+      } else if (loggedInUser.data === "No user found") {
+        alert("No user found");
+        setUserNameError(true);
+      } else if (loggedInUser.data === "invalid password") {
+        alert("Invalid password");
+        setPasswordError(true);
+      }
     }
   };
 
   const nameChangeHandler = (event: React.FormEvent<HTMLInputElement>) => {
     setUserName(event.currentTarget.value);
+    setUserNameError(false);
   };
 
   const passwordChangeHandler = (event: React.FormEvent<HTMLInputElement>) => {
     setPassword(event.currentTarget.value);
+    setPasswordError(false);
   };
 
   return (
@@ -42,11 +55,13 @@ const Login = () => {
           type="text"
           onChange={nameChangeHandler}
           value={userName}
+          error={userNameError.toString()}
         ></FloatingInput>
         <FloatingInput
           labelName="Password"
           type="password"
           onChange={passwordChangeHandler}
+          error={passwordError.toString()}
         ></FloatingInput>
       </div>
       <div className="mx-2 my-3 text-center flex flex-col items-center">
