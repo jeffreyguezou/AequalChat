@@ -1,10 +1,13 @@
-import { ReactNode, createContext, useState } from "react";
+import { ReactNode, createContext, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { AppSliceActions } from "../store/appSlice";
 import { useContext } from "react";
 import { UserContext } from "./userContext";
 import axios from "axios";
-import { SelectedUserContext } from "./SelectedUserContext";
+import {
+  SelectedUserContext,
+  SelectedUserProviderType,
+} from "./SelectedUserContext";
 import { fetchMsgs } from "../store/messageSlice";
 import { AppDispatch } from "../store/store";
 
@@ -28,8 +31,11 @@ export function WebSocketContextProvider({ children }: WSContextPropType) {
   const dispath = useDispatch<AppDispatch>();
   const user = useContext(UserContext);
   const selectedUser = useContext(SelectedUserContext);
+  const userIDref = useRef("");
 
-  console.log(selectedUser);
+  useEffect(() => {
+    userIDref.current = selectedUser.selectedUserId;
+  }, [selectedUser]);
 
   function connectToWs() {
     const ws = new WebSocket("ws://localhost:4040");
@@ -44,7 +50,7 @@ export function WebSocketContextProvider({ children }: WSContextPropType) {
     });
   }
 
-  const handleMessage = (event: { data: string }) => {
+  const handleMessage = async (event: { data: string }) => {
     const msgData = JSON.parse(event.data);
     if (msgData.type === "request") {
       dispath(AppSliceActions.newRequest(msgData.sender));
@@ -57,12 +63,13 @@ export function WebSocketContextProvider({ children }: WSContextPropType) {
           dispath(AppSliceActions.updateUser(latestUserDetails.data));
         }
       };
-      userDetailsUpdatedHandler();
+      await userDetailsUpdatedHandler();
     } else if (msgData.type === "message") {
       dispath(fetchMsgs({ current: msgData.recipient, other: msgData.sender }));
+      dispath(AppSliceActions.newMessage(msgData.sender));
     } else if (msgData.type === "status") {
-      if (selectedUser.selectedUserId === msgData.sender) {
-        selectedUser.setSelectedUserStatus(msgData.text);
+      if (userIDref.current === msgData.sender) {
+        selectedUser.setSelectedUserStatus(() => msgData.text);
       }
     }
   };
@@ -98,6 +105,13 @@ export function WebSocketContextProvider({ children }: WSContextPropType) {
       })
     );
     dispath(fetchMsgs({ current: user.id, other: recipient }));
+    const updateUnreadHandler = async () => {
+      const unreadUpdated = await axios.post("/user/updateUnread", {
+        recieverID: recipient,
+        senderID: user.id,
+      });
+    };
+    updateUnreadHandler();
   };
 
   const wsUserDetailsUpdateHandler = (recipient: string) => {

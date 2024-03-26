@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+
 const UserSchema = new mongoose.Schema({
   username: { type: String, unique: true },
   password: String,
@@ -9,6 +10,7 @@ const UserSchema = new mongoose.Schema({
   friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   requests: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   sentRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  unreadMessages: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 });
 
 module.exports = mongoose.model("User", UserSchema);

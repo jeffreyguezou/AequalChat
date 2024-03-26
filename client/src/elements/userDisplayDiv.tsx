@@ -2,10 +2,10 @@ import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../context/userContext";
 import { useDispatch, useSelector } from "react-redux";
-import { AppSliceActions } from "../store/appSlice";
+import { AppSliceActions, updateReadMsg } from "../store/appSlice";
 import { WebSocketContext } from "../context/WebSocketContext";
 import { SelectedUserContext } from "../context/SelectedUserContext";
-import { fetchMsgs, messageSlicaActions } from "../store/messageSlice";
+import { fetchMsgs } from "../store/messageSlice";
 import { AppDispatch } from "../store/store";
 
 interface UserDisaplayDivType {
@@ -19,6 +19,7 @@ const UserDisplayDiv = ({ userID, type, onClick }: UserDisaplayDivType) => {
   const [userProfile, setUserProfile] = useState("");
   const [userBio, setUserBio] = useState("");
   const [unRead, setUnRead] = useState([]);
+  const [msgCount, setMsgCount] = useState(0);
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -26,7 +27,6 @@ const UserDisplayDiv = ({ userID, type, onClick }: UserDisaplayDivType) => {
 
   const WS = useContext(WebSocketContext);
   const SelectedUser = useContext(SelectedUserContext);
-
   async function getData() {
     const { data } = await axios.get(`/user/getUserDetails/${userID}`);
     if (data) {
@@ -39,11 +39,35 @@ const UserDisplayDiv = ({ userID, type, onClick }: UserDisaplayDivType) => {
     getData();
   }
 
-  const clickhandler = (id: string, username: string) => {
+  let userData = useSelector((state) => state.app);
+
+  useEffect(() => {
+    setUnRead(userData[0].unreadMessages);
+  }, [userData[0].unreadMessages]);
+
+  useEffect(() => {
+    unRead.forEach((msgSender) => {
+      console.log(msgSender, userID);
+      if (msgSender == userID) {
+        setMsgCount((prev) => {
+          console.log(prev);
+          return prev + 1;
+        });
+      }
+    });
+  }, [unRead, userID]);
+
+  const clickhandler = async (id: string, username: string) => {
     SelectedUser.setSelectedUserId(id);
     SelectedUser.setSelectedUserName(username);
     SelectedUser.setSelectedUserBio(userBio);
     SelectedUser.setSelectedUserProfile(userProfile);
+    dispatch(
+      updateReadMsg({
+        viewedBy: userData[0]._id,
+        viewedWhose: userID,
+      })
+    );
   };
 
   const acceptRequestHandler = async () => {
@@ -60,10 +84,11 @@ const UserDisplayDiv = ({ userID, type, onClick }: UserDisaplayDivType) => {
   };
 
   const userDivClickHandler = async () => {
-    clickhandler(userID, userName);
     if (type === "friend") {
       dispatch(fetchMsgs({ current: id, other: userID }));
     }
+    clickhandler(userID, userName);
+    setMsgCount(0);
   };
 
   return (
@@ -84,7 +109,7 @@ const UserDisplayDiv = ({ userID, type, onClick }: UserDisaplayDivType) => {
         )}
         {unRead && (
           <div className="w-6 h-6 rounded-full bg-green-500">
-            <div className="text-center">{unRead.length}</div>
+            <div className="text-center">{msgCount}</div>
           </div>
         )}
       </div>

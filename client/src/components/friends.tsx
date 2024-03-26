@@ -13,7 +13,9 @@ const Friends = () => {
   return (
     <div className="h-full">
       <div>
-        <h1>New requests</h1>
+        <div className="font-bold border-b border-slate-300 dark:border-slate-50 p-2">
+          New requests
+        </div>
         {!appData[0] && (
           <div>
             {appData[0].requests.length == 0 && <div>No requests yet</div>}
@@ -34,7 +36,9 @@ const Friends = () => {
         )}
       </div>
       <div>
-        <h1>Existing friends</h1>
+        <div className="font-bold border-b border-slate-300 dark:border-slate-50 p-2">
+          Existing friends
+        </div>
         {!appData[0] && (
           <div>{!appData[0].friends && <div>No friends yet</div>}</div>
         )}

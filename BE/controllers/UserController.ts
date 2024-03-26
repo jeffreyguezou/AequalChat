@@ -57,6 +57,7 @@ exports.user_detail_partial_get = asyncHandler(async (req, res) => {
 
 exports.login_userDetails_post = asyncHandler(async (req, res) => {
   const { userName } = req.body;
+  console.log({ userName });
 
   const user = await User.findOne({ username: userName });
   if (user) {
@@ -250,4 +251,47 @@ async function updateFriendsOnReqAccept(id, acceptedReqID) {
 async function getExistingFriends(id) {
   const userFriends = await User.findOne({ _id: id }, "friends");
   return userFriends;
+}
+
+exports.unreadMessages_update_post = asyncHandler(async (req, res) => {
+  const { recieverID, senderID } = req.body;
+  // fetch existing unread
+  let { _id, unreadMessages } = await getExistingUnread(recieverID);
+  unreadMessages = [...unreadMessages, senderID];
+  //update unread messages for reciever
+  const updateUnread = await User.findOneAndUpdate(
+    { _id: recieverID },
+    { unreadMessages: unreadMessages },
+    { new: true }
+  );
+  if (updateUnread) {
+    res.json("ok");
+    console.log(updateUnread);
+  }
+});
+
+exports.mark_messagesRead_post = asyncHandler(async (req, res) => {
+  const { viewedBy, viewedID } = req.body;
+  let { unreadMessages } = await getExistingUnread(viewedBy);
+  let newUnread: string[] = [];
+  console.log(unreadMessages);
+  unreadMessages.forEach((userId) => {
+    if (!userId.equals(viewedID)) {
+      newUnread.push(userId as string);
+    }
+  });
+  const updateUnread = await User.findOneAndUpdate(
+    { _id: viewedBy },
+    { unreadMessages: newUnread },
+    { new: true }
+  );
+  if (updateUnread) {
+    res.json("ok");
+  }
+});
+
+async function getExistingUnread(id) {
+  const userUnread = await User.findOne({ _id: id }, "unreadMessages");
+
+  return userUnread;
 }

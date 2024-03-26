@@ -55,26 +55,36 @@ wss.on("connection", (connection, req) => {
     const messageData = JSON.parse(message.toString());
     const { recipient, sender, text, type } = messageData;
 
-    const messageDoc = await Message.create({
-      sender: connection.userId,
-      recipient,
-      text,
-      type,
-    });
-
-    [...wss.clients]
-      .filter((u) => u.userId === recipient)
-      .forEach((c) =>
-        c.send(
-          JSON.stringify({
-            text,
-            sender: connection.userId,
-            recipient,
-            type,
-            _id: messageDoc._id,
-          })
-        )
-      );
+    if (type !== "status") {
+      const messageDoc = await Message.create({
+        sender: connection.userId,
+        recipient,
+        text,
+        type,
+      });
+      [...wss.clients]
+        .filter((u) => u.userId === recipient)
+        .forEach((c) =>
+          c.send(
+            JSON.stringify({
+              text,
+              sender: connection.userId,
+              recipient,
+              type,
+              _id: messageDoc._id,
+            })
+          )
+        );
+    }
+    if (type === "status") {
+      [...wss.clients]
+        .filter((u) => u.userId === recipient)
+        .forEach((c) =>
+          c.send(
+            JSON.stringify({ sender: connection.userId, recipient, text, type })
+          )
+        );
+    }
   });
 });
 

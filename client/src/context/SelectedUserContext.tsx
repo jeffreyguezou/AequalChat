@@ -9,7 +9,7 @@ type SelectedUserProps = {
   children: ReactNode;
 };
 
-type SelectedUserProviderType = {
+export type SelectedUserProviderType = {
   setSelectedUserId: React.Dispatch<React.SetStateAction<string>>;
   setSelectedUserName: React.Dispatch<React.SetStateAction<string>>;
   selectedUserName: string;
@@ -51,7 +51,6 @@ export function SelectedUserContextProvider({ children }: SelectedUserProps) {
     selectedUserStatus,
     setSelectedUserStatus,
   };
-
   return (
     <SelectedUserContext.Provider value={provider}>
       {children}

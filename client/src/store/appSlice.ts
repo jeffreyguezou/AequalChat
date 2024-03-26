@@ -1,4 +1,23 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+
+export const updateReadMsg = createAsyncThunk(
+  "user/updateMsgsRead",
+  async (payload: { viewedBy: string; viewedWhose: string }, { dispatch }) => {
+    const unreadUpdated = await axios.post("/user/markRead", {
+      viewedBy: payload.viewedBy,
+      viewedID: payload.viewedWhose,
+    });
+    if (unreadUpdated) {
+      const currentUser = await axios.post("/user/getUserDetails", {
+        userName: state[0].username,
+      });
+      if (currentUser) {
+        dispatch(AppSliceActions.updateUser(currentUser.data));
+      }
+    }
+  }
+);
 
 const AppSlice = createSlice({
   name: "user",
@@ -40,6 +59,12 @@ const AppSlice = createSlice({
       if (state[0]) {
         state[0] = action.payload;
       }
+    },
+    newMessage: (state, action) => {
+      state[0].unreadMessages = [action.payload];
+    },
+    markRead: (state, action) => {
+      state[0].unreadMessages = [];
     },
   },
 });

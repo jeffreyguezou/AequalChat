@@ -72,6 +72,7 @@ const Register = () => {
         friends: [],
         requests: [],
         sentRequests: [],
+        unreadMessages: [],
       });
 
       if (data) {

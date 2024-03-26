@@ -7,6 +7,11 @@ const store = configureStore({
     app: appSliceReducer,
     messages: messageSliceReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      immutableCheck: false,
+      serializableCheck: false,
+    }),
 });
 export default store;
 export type AppDispatch = typeof store.dispatch;

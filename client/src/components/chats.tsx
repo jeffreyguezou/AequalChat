@@ -35,6 +35,8 @@ const Chats = () => {
   let userArr = useSelector((state) => state.app);
   const { selectedUserId } = useContext(SelectedUserContext);
 
+  const appData = useSelector((state) => state.app);
+
   let userDeets = userArr[0];
 
   useEffect(() => {
@@ -46,6 +48,10 @@ const Chats = () => {
       setWidth(window.innerWidth);
     });
   }, []);
+
+  useEffect(() => {
+    console.log(appData);
+  }, [appData]);
 
   useEffect(() => {
     async function getCurrentUser() {

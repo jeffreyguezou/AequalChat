@@ -19,5 +19,7 @@ router.post("/updateUserBio", user_Controller.update_UserProfile_Bio);
 router.post("/updateReq", user_Controller.new_request_Recieved_post);
 router.post("/acceptReq", user_Controller.accept_request_post);
 router.post("/updatePref", user_Controller.update_UserProfile_Preference);
+router.post("/updateUnread", user_Controller.unreadMessages_update_post);
+router.post("/markRead", user_Controller.mark_messagesRead_post);
 
 module.exports = router;
