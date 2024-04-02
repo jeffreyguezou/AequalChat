@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 const User = require("../models/User");
 const mongoose = require("mongoose");
 require("dotenv").config();
@@ -235,6 +237,72 @@ exports.accept_request_post = asyncHandler(async (req, res) => {
   }
 });
 
+exports.reject_request_post = asyncHandler(async (req, res) => {
+  const { rejectedBy, rejectedId } = req.body;
+  let reqDelete, sentDelete;
+  let existingReq = await getExistingRequests(rejectedBy);
+
+  if (existingReq) {
+    let newReqArray: Types.ObjectId[] = [];
+    existingReq.forEach((req) => {
+      if (!req.equals(rejectedId)) {
+        newReqArray.push(req);
+      }
+    });
+
+    reqDelete = await User.findOneAndUpdate(
+      { _id: rejectedBy },
+      { requests: newReqArray },
+      { new: true }
+    );
+  }
+  let existingSent = await getAlreadySentRequests(rejectedId);
+  if (existingSent) {
+    let newSentArray: Types.ObjectId[] = [];
+    existingSent.forEach((sent) => {
+      if (!sent.equals(rejectedBy)) {
+        newSentArray.push(sent);
+      }
+    });
+
+    sentDelete = await User.findOneAndUpdate(
+      { _id: rejectedId },
+      { sentRequests: newSentArray },
+      { new: true }
+    );
+  }
+
+  if (reqDelete && sentDelete) {
+    res.json("request rejected");
+  }
+});
+
+exports.unfriend_post = asyncHandler(async (req, res) => {
+  const { id, unfriendedID } = req.body;
+  let sendUpdate = await updateFriendsOnUnfriend(id, unfriendedID);
+  let recieveUpdate = await updateFriendsOnUnfriend(unfriendedID, id);
+
+  if (sendUpdate && recieveUpdate) {
+    res.json("updated unfriend");
+  }
+});
+
+async function updateFriendsOnUnfriend(id: string, unfriendedID: string) {
+  let userFriends = await getExistingFriends(id);
+  let newFriends: Types.ObjectId[] = [];
+  userFriends.friends.forEach((friend: Types.ObjectId) => {
+    if (!friend.equals(unfriendedID)) {
+      newFriends.push(friend);
+    }
+  });
+  const unfriendUpdate = await User.findOneAndUpdate(
+    { _id: id },
+    { friends: newFriends },
+    { new: true }
+  );
+  return unfriendUpdate;
+}
+
 async function updateFriendsOnReqAccept(id, acceptedReqID) {
   let userFriends = await getExistingFriends(id);
   userFriends.friends.push(acceptedReqID);
@@ -266,7 +334,6 @@ exports.unreadMessages_update_post = asyncHandler(async (req, res) => {
   );
   if (updateUnread) {
     res.json("ok");
-    console.log(updateUnread);
   }
 });
 
@@ -274,7 +341,6 @@ exports.mark_messagesRead_post = asyncHandler(async (req, res) => {
   const { viewedBy, viewedID } = req.body;
   let { unreadMessages } = await getExistingUnread(viewedBy);
   let newUnread: string[] = [];
-  console.log(unreadMessages);
   unreadMessages.forEach((userId) => {
     if (!userId.equals(viewedID)) {
       newUnread.push(userId as string);

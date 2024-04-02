@@ -21,5 +21,7 @@ router.post("/acceptReq", user_Controller.accept_request_post);
 router.post("/updatePref", user_Controller.update_UserProfile_Preference);
 router.post("/updateUnread", user_Controller.unreadMessages_update_post);
 router.post("/markRead", user_Controller.mark_messagesRead_post);
+router.post("/unfriendUser", user_Controller.unfriend_post);
+router.post("/rejectRequest", user_Controller.reject_request_post);
 
 module.exports = router;

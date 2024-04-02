@@ -4,8 +4,6 @@ import { IRootState } from "../store/store";
 
 const Friends = () => {
   const appData = useSelector((state: IRootState) => state.app);
-  console.log(appData);
-
   const onUserClick = (id: string, username: string) => {
     console.log(id, username);
   };

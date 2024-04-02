@@ -58,10 +58,8 @@ const UserDisplayDiv = ({ userID, type, onClick }: UserDisaplayDivType) => {
 
   useEffect(() => {
     unRead.forEach((msgSender) => {
-      console.log(msgSender, userID);
       if (msgSender == userID) {
         setMsgCount((prev) => {
-          console.log(prev);
           return prev + 1;
         });
       }
@@ -94,12 +92,45 @@ const UserDisplayDiv = ({ userID, type, onClick }: UserDisaplayDivType) => {
     }
   };
 
+  const cancelRequestHandler = async () => {
+    const res = await axios.post("/user/rejectRequest", {
+      rejectedBy: id,
+      rejectedId: userID,
+    });
+    if (res) {
+      if (res.data === "request rejected") {
+        dispatch(AppSliceActions.acceptRequest(userID));
+        //accept request only removes from request array. can be reused - name is contradictory
+        WS.wsUserDetailsUpdateHandler(userID);
+      }
+    }
+  };
+
   const userDivClickHandler = async () => {
     if (type === "friend") {
       dispatch(fetchMsgs({ current: id, other: userID }));
     }
     clickhandler(userID, userName);
     setMsgCount(0);
+  };
+
+  const unfriendConfirmHandler = async (userName: string) => {
+    let unFriendConfirm = confirm(
+      `Are you sure you want to unfriend ${userName}`
+    );
+    if (unFriendConfirm) {
+      const res = await axios.post("/user/unfriendUser", {
+        id,
+        unfriendedID: userID,
+      });
+      if (res) {
+        console.log(res.data);
+        if (res.data === "updated unfriend") {
+          dispatch(AppSliceActions.unfriendUser(userID));
+          WS.wsUserDetailsUpdateHandler(userID);
+        }
+      }
+    }
   };
 
   return (
@@ -111,16 +142,64 @@ const UserDisplayDiv = ({ userID, type, onClick }: UserDisaplayDivType) => {
       <div className="flex w-full p-2 justify-between">
         {userName}{" "}
         {type === "request" && (
-          <button
-            onClick={acceptRequestHandler}
-            className="border p-1 rounded-sm"
-          >
-            Accept
-          </button>
+          <div className="flex gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-6 h-6 border p-1 rounded-sm hover:bg-slate-300 hover:text-green-700"
+              onClick={acceptRequestHandler}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m4.5 12.75 6 6 9-13.5"
+              />
+            </svg>
+
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-6 h-6 border p-1 rounded-sm hover:bg-slate-300 hover:text-red-700"
+              onClick={cancelRequestHandler}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18 18 6M6 6l12 12"
+              />
+            </svg>
+          </div>
         )}
-        {unRead && (
+        {unRead && type === "friend" && (
           <div className="w-6 h-6 rounded-full bg-green-500">
             <div className="text-center">{msgCount}</div>
+          </div>
+        )}
+        {type === "friends" && (
+          <div className="border border-gray-700 rounded-sm ">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-6 h-6"
+              onClick={() => {
+                unfriendConfirmHandler(userName);
+              }}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.766Z"
+              />
+            </svg>
           </div>
         )}
       </div>

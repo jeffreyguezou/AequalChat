@@ -55,6 +55,17 @@ const AppSlice = createSlice({
         state[0].requests = filteredRequests;
       }
     },
+    unfriendUser: (state, action) => {
+      if (state[0].friends.includes(action.payload)) {
+        let filteredFriends: string[] = [];
+        state[0].friends.forEach((friend: string) => {
+          if (friend !== action.payload) {
+            filteredFriends.push(action.payload);
+          }
+        });
+        state[0].friends = filteredFriends;
+      }
+    },
     updateUser: (state, action) => {
       if (state[0]) {
         state[0] = action.payload;

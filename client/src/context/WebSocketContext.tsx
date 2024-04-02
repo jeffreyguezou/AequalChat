@@ -1,13 +1,10 @@
 import { ReactNode, createContext, useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { AppSliceActions } from "../store/appSlice";
 import { useContext } from "react";
 import { UserContext } from "./userContext";
 import axios from "axios";
-import {
-  SelectedUserContext,
-  SelectedUserProviderType,
-} from "./SelectedUserContext";
+import { SelectedUserContext } from "./SelectedUserContext";
 import { fetchMsgs } from "../store/messageSlice";
 import { AppDispatch } from "../store/store";
 
@@ -32,10 +29,21 @@ export function WebSocketContextProvider({ children }: WSContextPropType) {
   const user = useContext(UserContext);
   const selectedUser = useContext(SelectedUserContext);
   const userIDref = useRef("");
+  const loggedInUserNameref = useRef("");
+  const appData = useSelector((state) => state.app);
+
+  let loggedInUser = appData[0];
+  console.log(loggedInUser);
 
   useEffect(() => {
     userIDref.current = selectedUser.selectedUserId;
   }, [selectedUser]);
+
+  useEffect(() => {
+    if (loggedInUser) {
+      loggedInUserNameref.current = loggedInUser.username;
+    }
+  }, [loggedInUser]);
 
   function connectToWs() {
     const ws = new WebSocket("ws://localhost:4040");
@@ -57,9 +65,10 @@ export function WebSocketContextProvider({ children }: WSContextPropType) {
     } else if (msgData.type === "userObjectUpdated") {
       const userDetailsUpdatedHandler = async () => {
         const latestUserDetails = await axios.post("/user/getUserDetails", {
-          userName: user.userName,
+          userName: loggedInUserNameref.current,
         });
         if (latestUserDetails) {
+          console.log(latestUserDetails.data);
           dispath(AppSliceActions.updateUser(latestUserDetails.data));
         }
       };
