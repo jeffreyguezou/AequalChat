@@ -21,6 +21,7 @@ type WSContextType = {
   setWs: React.Dispatch<React.SetStateAction<WebSocket | null | undefined>>;
   sendMsgHandler: (message: string, recipient: string) => void;
   setTypingHandler: (recipient: string, text: string) => void;
+  audioSendHandler: (message, recipient) => void;
 };
 
 export function WebSocketContextProvider({ children }: WSContextPropType) {
@@ -68,12 +69,11 @@ export function WebSocketContextProvider({ children }: WSContextPropType) {
           userName: loggedInUserNameref.current,
         });
         if (latestUserDetails) {
-          console.log(latestUserDetails.data);
           dispath(AppSliceActions.updateUser(latestUserDetails.data));
         }
       };
       await userDetailsUpdatedHandler();
-    } else if (msgData.type === "message") {
+    } else if (msgData.type === "message" || msgData.type === "audiomessage") {
       dispath(fetchMsgs({ current: msgData.recipient, other: msgData.sender }));
       dispath(AppSliceActions.newMessage(msgData.sender));
     } else if (msgData.type === "status") {
@@ -123,6 +123,36 @@ export function WebSocketContextProvider({ children }: WSContextPropType) {
     updateUnreadHandler();
   };
 
+  const audioSendHandler = async (message, recipient) => {
+    let reader = new FileReader();
+    let b64Data;
+    reader.readAsDataURL(message);
+    reader.onloadend = async () => {
+      b64Data = reader.result;
+
+      ws?.send(
+        JSON.stringify({
+          recipient,
+          sender: user.id,
+          type: "audiomessage",
+          text: b64Data,
+        })
+      );
+
+      const updateUnreadHandler = async () => {
+        const unreadUpdated = await axios.post("/user/updateUnread", {
+          recieverID: recipient,
+          senderID: user.id,
+        });
+        if (unreadUpdated) {
+          return "updated";
+        }
+      };
+      updateUnreadHandler();
+    };
+    dispath(fetchMsgs({ current: user.id, other: recipient }));
+  };
+
   const wsUserDetailsUpdateHandler = (recipient: string) => {
     ws?.send(
       JSON.stringify({
@@ -159,6 +189,7 @@ export function WebSocketContextProvider({ children }: WSContextPropType) {
     setWs,
     sendMsgHandler,
     setTypingHandler,
+    audioSendHandler,
   };
 
   return (

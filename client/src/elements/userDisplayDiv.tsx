@@ -149,7 +149,7 @@ const UserDisplayDiv = ({ userID, type, onClick }: UserDisaplayDivType) => {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="w-6 h-6 border p-1 rounded-sm hover:bg-slate-300 hover:text-green-700"
+              className="w-6 h-6 border p-1 rounded-sm hover:bg-slate-100 hover:text-green-700"
               onClick={acceptRequestHandler}
             >
               <path
@@ -165,7 +165,7 @@ const UserDisplayDiv = ({ userID, type, onClick }: UserDisaplayDivType) => {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="w-6 h-6 border p-1 rounded-sm hover:bg-slate-300 hover:text-red-700"
+              className="w-6 h-6 border p-1 rounded-sm hover:bg-slate-100 hover:text-red-400"
               onClick={cancelRequestHandler}
             >
               <path
@@ -182,7 +182,7 @@ const UserDisplayDiv = ({ userID, type, onClick }: UserDisaplayDivType) => {
           </div>
         )}
         {type === "friends" && (
-          <div className="border border-gray-700 rounded-sm ">
+          <div className="text-red-400 hover:bg-slate-100 rounded-md">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

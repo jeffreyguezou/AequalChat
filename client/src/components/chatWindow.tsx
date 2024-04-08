@@ -15,11 +15,20 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
   const [iterableMsgs, setiterableMsgs] = useState([]);
   const [isSentReq, setIsSentReq] = useState(false);
 
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+  const mediaRecorder = useRef<MediaRecorder | null>(null);
+  const [isAudioChunkExist, setIsAudioChunkExist] = useState(false);
+  const [audioSRC, setAudioSrc] = useState("");
+  const [sendableBlob, setSendableBlob] = useState<Blob | null>();
+
   const selectedUser = useContext(SelectedUserContext);
   const WS = useContext(WebSocketContext);
   const userArray = useSelector((state: IRootState) => state.app);
   const divUnderMessages = useRef<HTMLDivElement | null>(null);
   const dispatch = useDispatch();
+
+  let chunkRef = useRef<Blob[] | null>();
 
   useEffect(() => {
     if (userArray[0]) {
@@ -56,11 +65,18 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
     setMsgText("");
   };
 
+  useEffect(() => {
+    console.log("Audio chunk changed", audioChunks);
+    chunkRef.current = audioChunks;
+    console.log(isAudioChunkExist);
+  }, [audioChunks]);
+
   let msgDet = useSelector((state: IRootState) => state.messages);
   useEffect(() => {
     if (msgDet) {
       setiterableMsgs(msgDet[selectedUser.selectedUserId]);
     }
+    console.log(msgDet);
   }, [msgDet]);
 
   useEffect(() => {
@@ -69,6 +85,92 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
       div.scrollIntoView({ behavior: "smooth", block: "end" });
     }
   }, [iterableMsgs]);
+
+  /*   const audioClickHandler = async () => {
+    setIsRecording(() => {
+      return !isRecording;
+    });
+    if (!isRecording) {
+      let mediaDevicesStream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
+
+      if (mediaDevicesStream) {
+        const recorder = new MediaRecorder(mediaDevicesStream);
+        recorder.ondataavailable = (e) => {
+          console.log("data available");
+          setAudioChunks((prev) => [...prev, e.data]);
+          console.log("changing audio chunk");
+          setIsAudioChunkExist(true);
+          const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+          console.log(typeof audioBlob);
+          const audioUrl = URL.createObjectURL(audioBlob);
+          setAudioSrc(audioUrl);
+          const saveBlob = () => {
+            console.log("entered save blob", audioChunks);
+
+            if (audioChunks.length === 0) {
+              console.error("No audio data to play.");
+              return;
+            }
+          };
+          //saveBlob();
+        };
+        recorder.start();
+        mediaRecorder.current = recorder;
+      }
+    } else {
+      console.log("record ended");
+      mediaRecorder.current?.stop();
+    }
+  }; */
+
+  const audioClickHandler = async () => {
+    setIsRecording((prev) => !prev); // Toggle the recording state
+
+    if (!isRecording) {
+      // If starting recording
+      try {
+        const mediaDevicesStream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+
+        const recorder = new MediaRecorder(mediaDevicesStream);
+        const chunks = []; // Store audio data chunks
+
+        recorder.ondataavailable = (e) => {
+          console.log("data available");
+          chunks.push(e.data); // Push new chunk to array
+          setIsAudioChunkExist(true);
+        };
+
+        recorder.onstop = () => {
+          console.log("recording stopped");
+          const audioBlob = new Blob(chunks, { type: "audio/webm" });
+          setSendableBlob(audioBlob);
+          const audioUrl = URL.createObjectURL(audioBlob);
+          setAudioSrc(audioUrl);
+        };
+
+        recorder.start();
+        mediaRecorder.current = recorder; // Save recorder reference
+      } catch (error) {
+        console.error("Error accessing media devices:", error);
+      }
+    } else {
+      mediaRecorder.current?.stop();
+    }
+  };
+
+  const sendAudioHandler = () => {
+    let audioSent = WS.audioSendHandler(
+      sendableBlob,
+      selectedUser.selectedUserId
+    );
+    setIsRecording(false);
+    setIsAudioChunkExist(false);
+    console.log(Promise.resolve(audioSent));
+  };
 
   return (
     <>
@@ -147,7 +249,12 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
                           key={msg._id}
                           className="dark:bg-slate-600 text-slate-800 dark:text-slate-100 bg-slate-300 p-2 rounded-lg m-2 lg:w-1/3 w-2/3 mr-auto"
                         >
-                          {msg.text}
+                          {msg.type === "message" && <span>{msg.text}</span>}
+                          {msg.type === "audiomessage" && (
+                            <audio controls>
+                              <source src={msg.text}></source>
+                            </audio>
+                          )}
                         </div>
                       );
                     } else {
@@ -156,7 +263,12 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
                           key={msg._id}
                           className="dark:bg-lime-800  text-slate-800 dark:text-slate-100 bg-lime-200 p-2 rounded-lg w-2/3 lg:w-1/3 m-2 ml-auto"
                         >
-                          {msg.text}
+                          {msg.type === "message" && <span>{msg.text}</span>}
+                          {msg.type === "audiomessage" && (
+                            <audio controls>
+                              <source src={msg.text}></source>
+                            </audio>
+                          )}
                         </div>
                       );
                     }
@@ -168,34 +280,111 @@ const ChatWindow = ({ onSendReq }: ChatWindowProps) => {
           </div>
           {isFriend && (
             <div className="flex m-4 gap-4 items-center">
-              <input
-                onFocus={msgInputFocusHandler}
-                onBlur={msgRemoveFocusHandler}
-                className="p-2 flex-grow dark:text-slate-900"
-                type="text"
-                placeholder="type your message"
-                onChange={msgTextChangeHandler}
-                value={msgText}
-              ></input>
-              <button
-                onClick={sendMsgHandler}
-                className="text-center border border-gray-50 p-1 hover:bg-slate-400"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-6 h-6"
+              {!isAudioChunkExist && (
+                <input
+                  onFocus={msgInputFocusHandler}
+                  onBlur={msgRemoveFocusHandler}
+                  className="p-2 flex-grow dark:text-slate-900"
+                  type="text"
+                  placeholder="type your message"
+                  onChange={msgTextChangeHandler}
+                  value={msgText}
+                ></input>
+              )}
+              {isAudioChunkExist && (
+                <audio className="flex-grow" controls>
+                  <source src={audioSRC} />
+                </audio>
+              )}
+              {!isRecording && (
+                <button
+                  onClick={audioClickHandler}
+                  className="text-center border border-gray-50 p-1 hover:bg-slate-400"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
-                  />
-                </svg>
-              </button>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 h-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z"
+                    />
+                  </svg>
+                </button>
+              )}
+              {isRecording && (
+                <button
+                  onClick={audioClickHandler}
+                  className="text-center border border-gray-50 p-1 hover:bg-slate-400"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 h-6 text-red-500"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 9.563C9 9.252 9.252 9 9.563 9h4.874c.311 0 .563.252.563.563v4.874c0 .311-.252.563-.563.563H9.564A.562.562 0 0 1 9 14.437V9.564Z"
+                    />
+                  </svg>
+                </button>
+              )}
+              {!isAudioChunkExist && (
+                <button
+                  onClick={sendMsgHandler}
+                  className="text-center border border-gray-50 p-1 hover:bg-slate-400"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 h-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
+                    />
+                  </svg>
+                </button>
+              )}
+              {isAudioChunkExist && (
+                <button
+                  onClick={sendAudioHandler}
+                  className="text-center border border-gray-50 p-1 hover:bg-slate-400"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 h-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
+                    />
+                  </svg>
+                </button>
+              )}
             </div>
           )}
         </>
